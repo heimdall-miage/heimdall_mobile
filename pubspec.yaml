@@ -1,5 +1,5 @@
-name: heimdall_mobile
-description: A new Flutter project.
+name: heimdall
+description: The mobile roll call
 
 # The following defines the version and build number for your application.
 # A version number is three numbers separated by dots, like 1.2.43
@@ -22,6 +22,7 @@ dependencies:
   font_awesome_flutter: ^8.4.0
   scoped_model: ^1.0.1
   cached_network_image: ^0.5.1
+  flutter_secure_storage: ^3.2.1+1
 
 dev_dependencies:
   flutter_test:
