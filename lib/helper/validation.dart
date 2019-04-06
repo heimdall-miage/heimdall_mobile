@@ -41,7 +41,7 @@ class Validator {
     try {
       Uri.parse(url);
       return null;
-    } on FormatException catch (e) {
+    } catch (e) {
       return 'L\'url n\'est pas valide.';
     }
   }

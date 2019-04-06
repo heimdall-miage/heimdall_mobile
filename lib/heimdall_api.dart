@@ -1,114 +1,153 @@
 import 'dart:async';
 import 'dart:convert';
+import 'dart:io';
 
-import 'package:flutter/widgets.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+import 'package:heimdall/exceptions/auth.dart';
 import 'package:heimdall/model/user.dart';
 import "package:http/http.dart" as http;
-import 'package:scoped_model/scoped_model.dart';
 
-class HeimdallApi extends Model {
-  static HeimdallApi of(BuildContext context) => ScopedModel.of<HeimdallApi>(context);
+class HeimdallApi {
+  String apiUrl;
+  UserToken userToken;
+  http.Client client = new http.Client();
 
-  // TODO Save url + token/refreshToken, keystore ? ==> https://pub.dartlang.org/packages/flutter_secure_storage
-
-  String _clientApiUrl; // TEMP (dev) : http://192.168.1.20/api
-  User user;
-
-  set clientApiUrl(String clientApiUrl) {
-    if (clientApiUrl.endsWith('/')) {
-      clientApiUrl = clientApiUrl.substring(0, clientApiUrl.length - 1);
+  Future<Map<String, dynamic>> refreshUserToken() {
+    if (userToken == null && apiUrl == null) {
+      throw new AuthException(AuthExceptionType.not_authenticated);
     }
-    this._clientApiUrl = clientApiUrl;
+    return userToken.refresh(apiUrl);
   }
-  get clientApiUrl => _clientApiUrl;
 
-  Future<http.Response> _get(String endpoint, { bool refreshed = false }) async {
-    try {
-      final response = await http.get('$_clientApiUrl/$endpoint', headers: {'Authorization': 'Bearer ${user.token}'});
+  Future<dynamic> _sendRequest(http.BaseRequest request, { bool refreshed = false }) async {
+    if (userToken == null && apiUrl == null) {
+      throw new AuthException(AuthExceptionType.not_authenticated);
+    }
 
-      print(response.body);
-      switch (response.statusCode) {
-        case 200:
-          return response;
-        case 401:
-          if (refreshed) {
-            throw new Exception("Connexion refusée.");
-            // TODO : Redirection login screen, connexion refusée
-          }
-          await _refreshToken();
-          return _get(endpoint, refreshed: true);
-      }
+    if (userToken.isTokenExpired) {
+      refreshUserToken();
+    }
+    
+    request.headers[HttpHeaders.authorizationHeader] = 'Bearer ${userToken.token}';
+    request.headers[HttpHeaders.acceptHeader] = ContentType.json.mimeType;
+    final http.StreamedResponse response = await client.send(request);
 
-    } on Exception catch (e) {
-      print(e.toString()); // TODO
+    // TODO : handle more status codes
+    switch (response.statusCode) {
+      case 200:
+        return json.decode((await http.Response.fromStream(response)).body);
+      case 401:
+        // The token may have expired, we try to refresh it and send the request again
+        if (refreshed == true) { // Second 401 => logout.
+          throw new AuthException(AuthExceptionType.invalid_token);
+          // TODO : Redirection login screen, connexion refusée
+        }
+        refreshUserToken();
+        return _sendRequest(request, refreshed: true);
     }
 
     return null;
   }
 
-  Future<User> login(String apiUrl, String username, String password) async {
-    clientApiUrl = apiUrl;
-    final response = await http.post('$_clientApiUrl/login_check',
-        headers: {'Content-Type': 'application/json'},
-        body: '{"username":"$username","password":"$password"}');
+  Future<dynamic> get(String endpoint) async {
+    return _sendRequest(new http.Request("GET", Uri.parse('$apiUrl/$endpoint')));
+  }
 
-    // TODO : Handle most of response code with custom messages
+  Future<dynamic> post(String endpoint, Map<String, dynamic> data) async {
+    final http.Request request = new http.Request("POST", Uri.parse('$apiUrl/$endpoint'));
+    request.body = json.encode(data);
+    return _sendRequest(request);
+  }
+
+  Future<dynamic> put(String endpoint, Map<String, dynamic> data) async {
+    final http.Request request = new http.Request("POST", Uri.parse('$apiUrl/$endpoint'));
+    request.body = json.encode(data);
+    return _sendRequest(request);
+  }
+
+  Future<dynamic> delete(String endpoint) async {
+    return _sendRequest(new http.Request("DELETE", Uri.parse('$apiUrl/$endpoint')));
+  }
+
+  Future<User> signIn(String apiUrl, String username, String password) async {
+    if (apiUrl.isEmpty || username.isEmpty || password.isEmpty) {
+      throw new AuthException(AuthExceptionType.bad_credentials);
+    }
+    this.apiUrl = apiUrl;
+    print(this.apiUrl);
+    final response = await http.post('$apiUrl/login_check',
+        headers: {HttpHeaders.contentTypeHeader: ContentType.json.mimeType},
+        body: '{"username":"$username","password":"$password"}')
+        .timeout(Duration(seconds: 10), onTimeout: () { // TODO : Timeout on other requests?
+          throw new AuthException(AuthExceptionType.timeout);
+        }
+    );
+
+    print(this.apiUrl);
+    print(response.body);
+
     if (response.statusCode == 200) {
-      this.user = User.fromApiJson(username, json.decode(response.body));
+      Map<String, dynamic> data = json.decode(response.body);
+      final User user = User.fromJson(data['user']);
+      this.userToken = UserToken.fromJson(data);
 
+      // Save the url & token on the phone to be able to reconnect the user later
       final storage = new FlutterSecureStorage();
       storage.write(key: 'apiUrl', value: apiUrl);
-      storage.write(key: 'user', value: json.encode(user.toJson()));
+      storage.write(key: 'userToken', value: json.encode(userToken.toJson()));
 
-      return this.user;
+      return user;
     }
 
     if (response.statusCode == 401) {
-      throw Exception("Identifiants incorrects.");
+      throw new AuthException(AuthExceptionType.bad_credentials);
     }
 
-    throw Exception("Erreur inconnue lors de l'identification.");
+    print(response.body);
+    throw new AuthException(AuthExceptionType.unknown);
+  }
+}
+
+class UserToken {
+  String refreshToken;
+  int refreshTokenExpires;
+  String token;
+  int tokenExpires;
+
+  UserToken({this.token, this.refreshToken, this.tokenExpires, this.refreshTokenExpires});
+
+  factory UserToken.fromJson(Map<String, dynamic> json) {
+    return UserToken(
+      refreshToken: json['refresh_token'],
+      refreshTokenExpires: json['refresh_token_expires'],
+      token: json.containsKey('token') ? json['token'] : null,
+      tokenExpires: json.containsKey('token_expires') ? json['token_expires'] : null,
+    );
   }
 
-  Future<User> _refreshToken() async {
-    if (this.user == null) {
-      return null;
-    }
-    final response = await http.post('$_clientApiUrl/token/refresh', body: {'refresh_token': this.user.refreshToken});
+  Map<String, dynamic> toJson() => {
+    'refresh_token': refreshToken,
+    'refreshTokenExpires': refreshTokenExpires,
+  };
 
-    if (response.statusCode == 200) { // TODO : Gérer erreurs
-      Map data = json.decode(response.body);
-      this.user.token = data['token'];
-      this.user.type = data['type'];
-      return this.user;
-    }
+  bool get isTokenExpired => tokenExpires == null ? false : DateTime.now().millisecondsSinceEpoch >= tokenExpires;
+  bool get isRefreshTokenExpired => refreshTokenExpires == null ? false : DateTime.now().millisecondsSinceEpoch >= refreshTokenExpires;
 
-    throw Exception("Reconnexion nécessaire.");
-  }
-
-  Future<User> resumeExistingConnection() async {
-    // No user in memory (probably the app was closed and reopen)
-    if (user == null) {
-      final storage = new FlutterSecureStorage();
-      Map<String, String> storedInfos = await storage.readAll();
-
-      if (!storedInfos.containsKey("apiUrl")) {
-        return null;
+  // Returns the actualized user infos if successfull
+  Future<Map<String, dynamic>> refresh(String apiUrl) async {
+    if (!isRefreshTokenExpired) {
+      final http.Response response = await http.post(
+          '$apiUrl/token/refresh', body: {'refresh_token': refreshToken});
+      if (response.statusCode == 200) {
+        Map<String, dynamic> newTokenData = json.decode(response.body);
+        this.refreshToken = newTokenData['refresh_token'];
+        this.refreshTokenExpires = newTokenData['refresh_token_expires'];
+        this.token = newTokenData['token'];
+        this.tokenExpires = newTokenData['token_expires'];
+        return newTokenData['user'];
       }
-      this.clientApiUrl = storedInfos['apiUrl'];
-
-      if (!storedInfos.containsKey("user")) {
-        return null;
-      }
-      this.user = User.fromStoredJson(json.decode(storedInfos['user']));
     }
 
-    return _refreshToken();
-  }
-
-  Future<String> test() async {
-    final response = await _get("test");
-    return response.body.toString();
+    throw new AuthException(AuthExceptionType.invalid_refresh_token);
   }
 }

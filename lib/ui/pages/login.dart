@@ -2,10 +2,10 @@ import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:heimdall/components/password_field.dart';
-import 'package:heimdall/heimdall_api.dart';
+import 'package:heimdall/exceptions/auth.dart';
 import 'package:heimdall/helper/validation.dart';
-import 'package:heimdall/model/user.dart';
+import 'package:heimdall/model.dart';
+import 'package:heimdall/ui/components/password_field.dart';
 import "package:http/http.dart" as http;
 
 class Login extends StatefulWidget {
@@ -17,12 +17,23 @@ class _LoginState extends State<Login> {
   final _formKey = GlobalKey<FormState>();
   String verificationId;
   LoginFormData _data = LoginFormData();
-  String _verifiedUrl;
+  TextEditingController _urlController = TextEditingController();
   bool _urlIsValid;
   FocusNode _urlFocus = FocusNode();
   FocusNode _usernameFocus = FocusNode();
   FocusNode _passwordFocus = FocusNode();
   bool _loading = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _urlController.text = AppModel.of(context).api?.apiUrl;
+    _urlFocus.addListener(() {
+      if (!_urlFocus.hasFocus) {
+        _verifyServerUrl(_urlController.text);
+      }
+    });
+  }
 
   // TODO : Nice dialog with real error handling
   void _showLoginErrorDialog(e) {
@@ -45,35 +56,37 @@ class _LoginState extends State<Login> {
         });
   }
 
-  Future<void> _verifyServerUrl(String url) async {
-    if (!url.endsWith('/')) url += '/';
-    print('Verify : $url');
-    try {
-      final response = await http.get(url);
-      if (response.statusCode == 200) {
-        Map<String, dynamic> data = json.decode(response.body);
-        if (data.containsKey('result') && data['result'] == 'heimdall') {
-          setState(() {
-            print('URL IS VALID');
-            this._urlIsValid = true;
-          });
-          this._verifiedUrl = url;
-          return;
+  Future<String> _verifyServerUrl(String url) async {
+    if (Validator.validateUrl(url) == null) {
+      if (url.endsWith('/')) url.substring(0, url.length - 1);
+      print('Verify : $url');
+      try {
+        final response = await http.get(url + "/");
+        if (response.statusCode == 200) {
+          Map<String, dynamic> data = json.decode(response.body);
+          if (data.containsKey('result') && data['result'] == 'heimdall') {
+            setState(() {
+              this._urlIsValid = true;
+              _urlController.text = url;
+            });
+            return url;
+          }
         }
+      } catch (e) {
+        print(e); // TEMP
       }
-    } on Exception catch (e) {
-      print(e); // TEMP
-    }
 
-    // Recheck after adding /api to the url
-    if (!url.contains('api')) {
-      return await _verifyServerUrl(url + 'api/');
+      // Recheck after adding /api to the url
+      if (!url.contains('api')) {
+        return await _verifyServerUrl(url + '/api');
+      }
     }
 
     setState(() {
-      print('URL NOT VALID');
       this._urlIsValid = false;
     });
+
+    return url;
   }
 
   Future<void> _signIn() async {
@@ -84,25 +97,22 @@ class _LoginState extends State<Login> {
       });
       _formKey.currentState.save();
       try {
-        User user = await HeimdallApi.of(context).login(_data.serverUrl, _data.username, _data.password).timeout(
-            Duration(seconds: 10), onTimeout: () {
-          throw PlatformException(
-              code: 'SIGN_IN_TIMEOUT',
-              message: 'La connexion a pris trop de temps');
-        });
+        await AppModel.of(context).signIn(_data.serverUrl, _data.username, _data.password);
 
         // TEMP
         setState(() {
           _loading = false;
         });
-        print((await HeimdallApi.of(context).test()).toString());
+        print(await AppModel.of(context).test());
 //        Navigator.pushNamedAndRemoveUntil(
 //            context, '/home', (Route<dynamic> route) => false);
-      } on Exception catch (e) {
+      } on AuthException catch (e) {
         _showLoginErrorDialog(e);
         setState(() {
           _loading = false;
         });
+      } catch (e) {
+        print(e); // TODO handler
       }
     }
   }
@@ -133,15 +143,14 @@ class _LoginState extends State<Login> {
                               ),
                               validator: Validator.validateUrl,
                               textInputAction: TextInputAction.next,
-                              initialValue: HeimdallApi.of(context).clientApiUrl,
                               focusNode: _urlFocus,
-                              onFieldSubmitted: (val) async {
-                                _verifyServerUrl(val);
+                              controller: _urlController,
+                              onFieldSubmitted: (val) {
                                 _urlFocus.unfocus();
                                 FocusScope.of(context)
                                     .requestFocus(_usernameFocus);
                               },
-                              onSaved: (String value) => _data.serverUrl = _verifiedUrl ?? value,
+                              onSaved: (String value) => _data.serverUrl = value,
                             ),
                             Divider(color: Colors.transparent),
                             TextFormField(
@@ -151,7 +160,7 @@ class _LoginState extends State<Login> {
                                   icon: const Icon(Icons.person)),
                               validator: Validator.validateUsername,
                               textInputAction: TextInputAction.next,
-                              initialValue: HeimdallApi.of(context).user?.username,
+                              initialValue: AppModel.of(context).user?.username,
                               focusNode: _usernameFocus,
                               onFieldSubmitted: (val) {
                                 _usernameFocus.unfocus();

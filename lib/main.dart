@@ -1,23 +1,25 @@
 import 'package:flutter/material.dart';
-import 'package:heimdall/heimdall_api.dart';
-import 'package:heimdall/login.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+import 'package:heimdall/model.dart';
 import 'package:heimdall/model/user.dart';
+import 'package:heimdall/ui/pages/login.dart';
 import 'package:scoped_model/scoped_model.dart';
 
-final api = HeimdallApi();
+final model = new AppModel();
 
 void main() => runApp(App());
 
 class App extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
+    final storage = new FlutterSecureStorage();
     return
-      ScopedModel<HeimdallApi>(
-        model: api,
+      ScopedModel<AppModel>(
+        model: model,
         child: MaterialApp(
             title: 'Heimdall',
             home: FutureBuilder<User>(
-                future: api.resumeExistingConnection(),
+                future: model.resumeExistingConnection(),
                 builder: (BuildContext context, AsyncSnapshot<User> snapshot) {
                   switch (snapshot.connectionState) {
                     case ConnectionState.none:
@@ -28,10 +30,12 @@ class App extends StatelessWidget {
                         return Text('Error: ${snapshot.error}');
                       } else {
                         if (snapshot.data != null) {
-                          if (api.user.type == User.STUDENT) {
+                          print('User logged in!');
+                          AppModel.of(context).test().then((val) {print(val);});
+                          if (model.user.type == User.STUDENT) {
 //                          return StudentHome(); // TODO
                           }
-                          if (api.user.type == User.TEACHER) {
+                          if (model.user.type == User.TEACHER) {
 //                          return TeacherHome();
                           }
                         }
