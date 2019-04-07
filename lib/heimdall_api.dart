@@ -40,7 +40,7 @@ class HeimdallApi {
         // The token may have expired, we try to refresh it and send the request again
         if (refreshed == true) { // Second 401 => logout.
           throw new AuthException(AuthExceptionType.invalid_token);
-          // TODO : Redirection login screen, connexion refusée
+          // TODO : Redirection login screen, connection refused
         }
         refreshUserToken();
         return _sendRequest(request, refreshed: true);
@@ -74,7 +74,6 @@ class HeimdallApi {
       throw new AuthException(AuthExceptionType.bad_credentials);
     }
     this.apiUrl = apiUrl;
-    print(this.apiUrl);
     final response = await http.post('$apiUrl/login_check',
         headers: {HttpHeaders.contentTypeHeader: ContentType.json.mimeType},
         body: '{"username":"$username","password":"$password"}')
@@ -82,9 +81,6 @@ class HeimdallApi {
           throw new AuthException(AuthExceptionType.timeout);
         }
     );
-
-    print(this.apiUrl);
-    print(response.body);
 
     if (response.statusCode == 200) {
       Map<String, dynamic> data = json.decode(response.body);
@@ -103,7 +99,6 @@ class HeimdallApi {
       throw new AuthException(AuthExceptionType.bad_credentials);
     }
 
-    print(response.body);
     throw new AuthException(AuthExceptionType.unknown);
   }
 }
@@ -144,6 +139,11 @@ class UserToken {
         this.refreshTokenExpires = newTokenData['refresh_token_expires'];
         this.token = newTokenData['token'];
         this.tokenExpires = newTokenData['token_expires'];
+
+        // Update the stored token
+        final storage = new FlutterSecureStorage();
+        storage.write(key: 'userToken', value: json.encode(this.toJson()));
+
         return newTokenData['user'];
       }
     }

@@ -21,17 +21,18 @@ class AppModel extends Model {
     if (api.userToken == null) {
       print('Getting token from storage');
       final storage = new FlutterSecureStorage();
-      Map<String, String> storedInfos = await storage.readAll();
 
-      if (!storedInfos.containsKey("apiUrl")) {
+      final String apiUrl = await storage.read(key: "apiUrl");
+      if (apiUrl == null) {
         return null;
       }
-      this.api.apiUrl = storedInfos['apiUrl'];
+      this.api.apiUrl = apiUrl;
 
-      if (!storedInfos.containsKey("userToken")) {
+      final String userToken = await storage.read(key: "userToken");
+      if (userToken == null) {
         return null;
       }
-      this.api.userToken = UserToken.fromJson(json.decode(storedInfos['userToken']));
+      this.api.userToken = UserToken.fromJson(json.decode(userToken));
     }
 
     this.user = User.fromJson(await api.refreshUserToken());
