@@ -23,6 +23,11 @@ class AuthException implements Exception {
         break;
     }
   }
+
+  @override
+  String toString() {
+    return "AuthException: " + message;
+  }
 }
 
 enum AuthExceptionType { bad_credentials, not_authenticated, invalid_token, invalid_refresh_token, timeout, unknown }

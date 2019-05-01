@@ -103,9 +103,8 @@ class _LoginState extends State<Login> {
         setState(() {
           _loading = false;
         });
-        print(await AppModel.of(context).test());
-//        Navigator.pushNamedAndRemoveUntil(
-//            context, '/home', (Route<dynamic> route) => false);
+        Navigator.pushNamedAndRemoveUntil(
+            context, '/' + AppModel.of(context).user.type.toLowerCase() + '/home', (Route<dynamic> route) => false);
       } on AuthException catch (e) {
         _showLoginErrorDialog(e);
         setState(() {

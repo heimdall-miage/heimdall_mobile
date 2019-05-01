@@ -11,6 +11,7 @@ class AppModel extends Model {
   final GlobalKey navigator = GlobalKey<NavigatorState>();
   final HeimdallApi api = new HeimdallApi();
   User user;
+  bool get isLoggedIn => user != null;
 
   Future<void> signIn(String apiUrl, String username, String password) async {
     this.user = await api.signIn(apiUrl, username, password);
@@ -38,12 +39,5 @@ class AppModel extends Model {
     this.user = User.fromJson(await api.refreshUserToken());
 
     return this.user;
-  }
-
-
-  /// Test endpoint (TEMP)
-  Future<String> test() async {
-    final data = await api.get("test");
-    return data[0];
   }
 }

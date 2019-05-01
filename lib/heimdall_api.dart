@@ -122,7 +122,7 @@ class UserToken {
 
   Map<String, dynamic> toJson() => {
     'refresh_token': refreshToken,
-    'refreshTokenExpires': refreshTokenExpires,
+    'refresh_token_expires': refreshTokenExpires,
   };
 
   bool get isTokenExpired => tokenExpires == null ? false : DateTime.now().millisecondsSinceEpoch >= tokenExpires;
