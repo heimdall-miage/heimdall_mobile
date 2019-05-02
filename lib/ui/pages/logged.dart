@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:heimdall/heimdall_api.dart';
 import 'package:heimdall/model.dart';
 import 'package:heimdall/model/user.dart';
 
@@ -7,6 +8,7 @@ abstract class Logged<T extends StatefulWidget> extends State<T> {
   final scaffoldKey = GlobalKey<ScaffoldState>();
   bool loading = false;
   User user;
+  HeimdallApi get api => AppModel.of(context).api;
 
   @override
   @mustCallSuper
@@ -15,6 +17,25 @@ abstract class Logged<T extends StatefulWidget> extends State<T> {
     setState(() {
       user = checkLoggedIn(context);
     });
+  }
+
+  void showErrorDialog(e) {
+    showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return AlertDialog(
+            title: new Text("Erreur"),
+            content: new Text(e.message != null ? e.message : e.toString()),
+            actions: <Widget>[
+              new FlatButton(
+                child: new Text("Ok"),
+                onPressed: () {
+                  Navigator.of(context).pop();
+                },
+              ),
+            ],
+          );
+        });
   }
 
   User checkLoggedIn(BuildContext context) {
@@ -26,9 +47,7 @@ abstract class Logged<T extends StatefulWidget> extends State<T> {
     }
   }
 
-  Widget getBody();
-
-  Widget getNav() {
+  Widget getBody() {
     return null;
   }
 
@@ -62,7 +81,6 @@ abstract class Logged<T extends StatefulWidget> extends State<T> {
         ],
       ),
       body: _body,
-      bottomNavigationBar: getNav(),
     );
   }
 

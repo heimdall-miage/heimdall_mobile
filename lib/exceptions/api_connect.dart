@@ -17,7 +17,7 @@ class ApiConnectException implements Exception {
         return "La connexion a pris trop de temps";
         break;
       default:
-        return "Erreur HTTP: " + errorMessage;
+        return "Erreur HTTP: " + errorMessage; // TODO : beau message
         break;
     }
   }

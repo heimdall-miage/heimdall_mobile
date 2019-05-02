@@ -14,14 +14,7 @@ class NamedCard extends StatelessWidget {
         Padding(
           child: Text(title, style: TextStyle(
             fontSize: 15,
-            color: Theme.of(context).primaryColor,
-            shadows: <Shadow>[
-              Shadow(
-                offset: Offset(1, 1),
-                blurRadius: 5,
-                color: Colors.grey,
-              ),
-            ],
+            fontWeight: FontWeight.bold,
           ),),
           padding: EdgeInsets.only(left: 10, top: 10),
         ),
