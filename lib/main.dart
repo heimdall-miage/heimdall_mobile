@@ -1,11 +1,12 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:heimdall/exceptions/api_connect.dart';
 import 'package:heimdall/exceptions/auth.dart';
 import 'package:heimdall/model.dart';
+import 'package:heimdall/model/student.dart';
+import 'package:heimdall/model/teacher.dart';
 import 'package:heimdall/model/user.dart';
-import 'package:heimdall/ui/pages/student/account.dart';
 import 'package:heimdall/ui/pages/login.dart';
+import 'package:heimdall/ui/pages/student/account.dart';
 import 'package:heimdall/ui/pages/student/home.dart' as student_home;
 import 'package:heimdall/ui/pages/teacher/home.dart' as teacher_home;
 import 'package:scoped_model/scoped_model.dart';
@@ -36,6 +37,9 @@ class App extends StatelessWidget {
       ScopedModel<AppModel>(
         model: model,
         child: MaterialApp(
+            theme: ThemeData(
+              primaryColor: Color.fromRGBO(227, 196, 7, 1),
+            ),
             title: 'Heimdall',
             home: FutureBuilder<User>(
                 future: checkExistingConnection(context),
@@ -49,10 +53,10 @@ class App extends StatelessWidget {
                         return Text('Error: ${snapshot.error}'); // TODO : Gestion erreur
                       } else {
                         if (snapshot.data != null) {
-                          if (model.user.type == User.STUDENT) {
+                          if (model.user is Student) {
                             return student_home.Home();
                           }
-                          if (model.user.type == User.TEACHER) {
+                          if (model.user is Teacher) {
                             return teacher_home.Home();
                           }
                         }

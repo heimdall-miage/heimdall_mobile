@@ -32,15 +32,18 @@ class HeimdallApi {
     
     request.headers[HttpHeaders.authorizationHeader] = 'Bearer ${userToken.token}';
     request.headers[HttpHeaders.acceptHeader] = ContentType.json.mimeType;
+    request.headers[HttpHeaders.contentTypeHeader] = ContentType.json.mimeType;
     http.StreamedResponse response = await client.send(request)
         .timeout(Duration(seconds: 10), onTimeout: () {
       throw new ApiConnectException(type: ApiConnectExceptionType.timeout);
     });
 
+    final responseBody = json.decode((await http.Response.fromStream(response)).body);
+    print(responseBody);
     switch (response.statusCode) {
       case 200:
       case 201:
-        return json.decode((await http.Response.fromStream(response)).body);
+        return responseBody;
       case 401:
       // The token may have expired, we try to refresh it and send the request again
         if (refreshed == true) { // Second 401 => logout.
@@ -50,7 +53,11 @@ class HeimdallApi {
         refreshUserToken();
         return _sendRequest(request, refreshed: true);
       default:
-        throw new ApiConnectException(responseStatusCode: response.statusCode, errorMessage: response.reasonPhrase);
+        String message = response.reasonPhrase;
+        if (responseBody is Map<String, dynamic> && responseBody.containsKey('message')) {
+          message = responseBody['message'];
+        }
+        throw new ApiConnectException(type: ApiConnectExceptionType.http, responseStatusCode: response.statusCode, errorMessage: message);
     }
   }
 

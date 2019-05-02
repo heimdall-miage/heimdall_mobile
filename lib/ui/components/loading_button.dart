@@ -124,7 +124,7 @@ class _LoadingButtonState extends State<LoadingButton> {
       if (!_timeout) {
         if (error is FormNotValidException) {
           _setStateOver(LoadingBtnAnimateState.Fix);
-        } else if (widget.successAction != null) {
+        } else if (widget.errorAction != null) {
           widget.errorAction(error);
           _setStateOver(LoadingBtnAnimateState.Fix);
         } else {
