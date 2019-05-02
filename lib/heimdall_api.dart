@@ -3,9 +3,11 @@ import 'dart:convert';
 import 'dart:io';
 
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+import 'package:heimdall/exceptions/api_connect.dart';
 import 'package:heimdall/exceptions/auth.dart';
 import 'package:heimdall/model/user.dart';
 import "package:http/http.dart" as http;
+import 'package:http/http.dart';
 
 class HeimdallApi {
   String apiUrl;
@@ -30,23 +32,26 @@ class HeimdallApi {
     
     request.headers[HttpHeaders.authorizationHeader] = 'Bearer ${userToken.token}';
     request.headers[HttpHeaders.acceptHeader] = ContentType.json.mimeType;
-    final http.StreamedResponse response = await client.send(request);
+    http.StreamedResponse response = await client.send(request)
+        .timeout(Duration(seconds: 10), onTimeout: () {
+      throw new ApiConnectException(type: ApiConnectExceptionType.timeout);
+    });
 
-    // TODO : handle more status codes
     switch (response.statusCode) {
       case 200:
+      case 201:
         return json.decode((await http.Response.fromStream(response)).body);
       case 401:
-        // The token may have expired, we try to refresh it and send the request again
+      // The token may have expired, we try to refresh it and send the request again
         if (refreshed == true) { // Second 401 => logout.
           throw new AuthException(AuthExceptionType.invalid_token);
           // TODO : Redirection login screen, connection refused
         }
         refreshUserToken();
         return _sendRequest(request, refreshed: true);
+      default:
+        throw new ApiConnectException(responseStatusCode: response.statusCode, errorMessage: response.reasonPhrase);
     }
-
-    return null;
   }
 
   Future<dynamic> get(String endpoint) async {
@@ -74,13 +79,18 @@ class HeimdallApi {
       throw new AuthException(AuthExceptionType.bad_credentials);
     }
     this.apiUrl = apiUrl;
-    final response = await http.post('$apiUrl/login_check',
-        headers: {HttpHeaders.contentTypeHeader: ContentType.json.mimeType},
-        body: '{"username":"$username","password":"$password"}')
-        .timeout(Duration(seconds: 10), onTimeout: () { // TODO : Timeout on other requests?
-          throw new AuthException(AuthExceptionType.timeout);
-        }
-    );
+    Response response;
+    try {
+      response = await http.post('$apiUrl/login_check',
+          headers: {HttpHeaders.contentTypeHeader: ContentType.json.mimeType},
+          body: '{"username":"$username","password":"$password"}')
+          .timeout(Duration(seconds: 10), onTimeout: () {
+            throw new ApiConnectException(type: ApiConnectExceptionType.timeout);
+          }
+      );
+    } on SocketException catch (e) {
+      throw new ApiConnectException(type: ApiConnectExceptionType.unknown, errorMessage: e.toString());
+    }
 
     if (response.statusCode == 200) {
       Map<String, dynamic> data = json.decode(response.body);
@@ -131,8 +141,16 @@ class UserToken {
   // Returns the actualized user infos if successfull
   Future<Map<String, dynamic>> refresh(String apiUrl) async {
     if (!isRefreshTokenExpired) {
-      final http.Response response = await http.post(
-          '$apiUrl/token/refresh', body: {'refresh_token': refreshToken});
+      http.Response response;
+      try {
+        response = await http.post(
+            '$apiUrl/token/refresh', body: {'refresh_token': refreshToken})
+            .timeout(Duration(seconds: 10), onTimeout: () {
+              throw new ApiConnectException(type: ApiConnectExceptionType.timeout);
+            });
+      } on SocketException catch (e) {
+        throw new ApiConnectException(type: ApiConnectExceptionType.unknown, errorMessage: e.toString());
+      }
       if (response.statusCode == 200) {
         Map<String, dynamic> newTokenData = json.decode(response.body);
         this.refreshToken = newTokenData['refresh_token'];

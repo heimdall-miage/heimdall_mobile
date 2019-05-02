@@ -2,6 +2,7 @@ import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:heimdall/exceptions/api_connect.dart';
 import 'package:heimdall/exceptions/auth.dart';
 import 'package:heimdall/helper/validation.dart';
 import 'package:heimdall/model.dart';
@@ -110,8 +111,16 @@ class _LoginState extends State<Login> {
         setState(() {
           _loading = false;
         });
+      } on ApiConnectException catch (e) {
+        _showLoginErrorDialog(e);
+        setState(() {
+          _loading = false;
+        });
       } catch (e) {
         print(e); // TODO handler
+        setState(() {
+          _loading = false;
+        });
       }
     }
   }

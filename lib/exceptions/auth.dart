@@ -15,9 +15,6 @@ class AuthException implements Exception {
       case AuthExceptionType.invalid_refresh_token:
         return "Reconnexion nécessaire";
         break;
-      case AuthExceptionType.timeout:
-        return "La connexion a pris trop de temps";
-        break;
       default:
         return "Erreur inconnue lors de l'authentification";
         break;
@@ -30,4 +27,4 @@ class AuthException implements Exception {
   }
 }
 
-enum AuthExceptionType { bad_credentials, not_authenticated, invalid_token, invalid_refresh_token, timeout, unknown }
+enum AuthExceptionType { bad_credentials, not_authenticated, invalid_token, invalid_refresh_token, unknown }

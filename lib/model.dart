@@ -17,6 +17,17 @@ class AppModel extends Model {
     this.user = await api.signIn(apiUrl, username, password);
   }
 
+  Future<void> signOut() async {
+    await api.delete('/token/refresh');
+    user = null;
+    deleteStoredToken();
+  }
+
+  void deleteStoredToken() {
+    final storage = new FlutterSecureStorage();
+    storage.delete(key: "userToken");
+  }
+
   Future<User> resumeExistingConnection() async {
     // No user in memory (probably the app was closed and reopen)
     if (api.userToken == null) {

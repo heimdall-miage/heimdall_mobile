@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+import 'package:heimdall/exceptions/api_connect.dart';
 import 'package:heimdall/exceptions/auth.dart';
 import 'package:heimdall/model.dart';
 import 'package:heimdall/model/user.dart';
+import 'package:heimdall/ui/pages/student/account.dart';
 import 'package:heimdall/ui/pages/login.dart';
 import 'package:heimdall/ui/pages/student/home.dart' as student_home;
 import 'package:heimdall/ui/pages/teacher/home.dart' as teacher_home;
@@ -13,16 +15,17 @@ final model = new AppModel();
 void main() => runApp(App());
 
 class App extends StatelessWidget {
-  Future<User> checkExistingConnection() async {
+  Future<User> checkExistingConnection(BuildContext context) async {
     try {
       return await model.resumeExistingConnection();
     } on AuthException catch (e) {
       print(e.toString());
       // If the token is invalid, remove it from the storage (it probably has expired)
       if (e.type == AuthExceptionType.invalid_token || e.type == AuthExceptionType.invalid_refresh_token) {
-        final storage = new FlutterSecureStorage();
-        storage.delete(key: "userToken");
+        AppModel.of(context).deleteStoredToken();
       }
+    } on ApiConnectException catch (e) {
+      print(e.toString());
     }
     return null;
   }
@@ -35,7 +38,7 @@ class App extends StatelessWidget {
         child: MaterialApp(
             title: 'Heimdall',
             home: FutureBuilder<User>(
-                future: checkExistingConnection(),
+                future: checkExistingConnection(context),
                 builder: (BuildContext context, AsyncSnapshot<User> snapshot) {
                   switch (snapshot.connectionState) {
                     case ConnectionState.none:
@@ -61,7 +64,7 @@ class App extends StatelessWidget {
             routes: {
               '/login': (context) => Login(),
 //              '/reset_password': (context) => ResetPassword(),
-//              '/account': (context) => Account(),
+              '/account': (context) => Account(),
               '/teacher/home': (context) => teacher_home.Home(),
               '/student/home': (context) => student_home.Home(),
             }),
