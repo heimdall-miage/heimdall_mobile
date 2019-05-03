@@ -51,6 +51,7 @@ class _AccountState extends Logged<Account> with WidgetsBindingObserver {
   }
 
   Future<void> _updatePassword() async {
+    FocusScope.of(context).requestFocus(new FocusNode()); // reset focus
     if (_formKey.currentState.validate()) {
       _formKey.currentState.save();
       await AppModel
