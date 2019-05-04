@@ -7,6 +7,7 @@ import 'package:heimdall/model/user.dart';
 abstract class Logged<T extends StatefulWidget> extends State<T> {
   final scaffoldKey = GlobalKey<ScaffoldState>();
   bool loading = false;
+  bool includeBaseContainer = true;
   User user;
   HeimdallApi get api => AppModel.of(context).api;
 
@@ -58,14 +59,14 @@ abstract class Logged<T extends StatefulWidget> extends State<T> {
   @override
   Widget build(BuildContext context) {
     Widget _body = loading ? Center(child: Stack(children: <Widget>[CircularProgressIndicator()])) :
-    SafeArea(
+    includeBaseContainer ? SafeArea(
         child: SingleChildScrollView(
             child: Container(
                 padding: EdgeInsets.only(top: 15, bottom: 15),
                 child: getBody()
             )
         )
-    );
+    ) : SafeArea(child: getBody());
 
     return Scaffold(
       key: scaffoldKey,

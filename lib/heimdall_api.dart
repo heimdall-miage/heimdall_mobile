@@ -5,6 +5,7 @@ import 'dart:io';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:heimdall/exceptions/api_connect.dart';
 import 'package:heimdall/exceptions/auth.dart';
+import 'package:heimdall/model/rollcall.dart';
 import 'package:heimdall/model/user.dart';
 import "package:http/http.dart" as http;
 
@@ -17,7 +18,16 @@ class HeimdallApi {
     return Uri.parse(apiUrl).origin;
   }
 
-  Future<Map<String, dynamic>> refreshUserToken() {
+  Future<List<RollCall>> getRollCalls() async {
+    dynamic result = await get('rollcall');
+    return new List<RollCall>.from(result.map((x) => RollCall.fromJson(x)));
+  }
+
+  Future<RollCall> createRollCall(RollCall rollCall) {
+    return post('rollcall', rollCall.toJson());
+  }
+
+  Future<Map<String, dynamic>> refreshUserToken() async {
     if (userToken == null && apiUrl == null) {
       throw new AuthException(AuthExceptionType.not_authenticated);
     }

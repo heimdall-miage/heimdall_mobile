@@ -1,25 +1,25 @@
 import 'package:heimdall/model/student.dart';
 import 'package:heimdall/model/teacher.dart';
 
-class User {
+abstract class User {
   static final String STUDENT = 'Student';
   static final String TEACHER = 'Teacher';
+  final int id;
   final String username;
-  String plainPassword;
+  String firstname;
+  String lastname;
+  DateTime lastLogin;
 
-  User({this.username});
+  User({this.id, this.username, this.firstname, this.lastname, this.lastLogin});
 
   factory User.fromJson(Map<String, dynamic> json) {
     if (json['type'] == STUDENT) {
-      return Student(
-        username: json['username'],
-        photo: json['photo'],
-      );
+      return Student.fromJson(json);
     } else if (json['type'] == TEACHER) {
-      return Teacher(
-        username: json['username'],
-      );
+      return Teacher.fromJson(json);
     }
     throw new Exception('User type not supported.');
   }
+
+  Map<String, dynamic> toJson();
 }
