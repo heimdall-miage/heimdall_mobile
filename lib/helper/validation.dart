@@ -39,6 +39,9 @@ class Validator {
 
   static String validateUrl(String url) {
     try {
+      if (!url.contains('http://') && !url.contains('https://')) {
+        throw new Exception();
+      }
       Uri.parse(url);
       return null;
     } catch (e) {

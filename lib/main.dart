@@ -6,9 +6,10 @@ import 'package:heimdall/model/student.dart';
 import 'package:heimdall/model/teacher.dart';
 import 'package:heimdall/model/user.dart';
 import 'package:heimdall/ui/pages/login.dart';
-import 'package:heimdall/ui/pages/student/account.dart';
+import 'package:heimdall/ui/pages/student/account.dart' as student_account;
 import 'package:heimdall/ui/pages/student/home.dart' as student_home;
 import 'package:heimdall/ui/pages/teacher/home.dart' as teacher_home;
+import 'package:heimdall/ui/pages/teacher/rollcall_create.dart';
 import 'package:scoped_model/scoped_model.dart';
 
 final model = new AppModel();
@@ -23,7 +24,7 @@ class App extends StatelessWidget {
       print(e.toString());
       // If the token is invalid, remove it from the storage (it probably has expired)
       if (e.type == AuthExceptionType.invalid_token || e.type == AuthExceptionType.invalid_refresh_token) {
-        AppModel.of(context).deleteStoredToken();
+        model.deleteStoredToken();
       }
     } on ApiConnectException catch (e) {
       print(e.toString());
@@ -66,11 +67,17 @@ class App extends StatelessWidget {
                 }
             ),
             routes: {
+              // Globales
               '/login': (context) => Login(),
 //              '/reset_password': (context) => ResetPassword(),
-              '/account': (context) => Account(),
-              '/teacher/home': (context) => teacher_home.Home(),
+
+              // Student specifics
               '/student/home': (context) => student_home.Home(),
+              '/student/account': (context) => student_account.Account(),
+
+              // Teacher specifics
+              '/teacher/home': (context) => teacher_home.Home(),
+              '/teacher/rollcall/create': (context) => RollCallCreate(),
             }),
       );
   }

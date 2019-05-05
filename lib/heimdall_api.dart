@@ -9,17 +9,22 @@ import 'package:heimdall/model/rollcall.dart';
 import 'package:heimdall/model/user.dart';
 import "package:http/http.dart" as http;
 
+import 'model/class_group.dart';
+
 class HeimdallApi {
-  String apiUrl;
+  String apiUrlProtocol;
+  String apiUrlHostname;
+  String apiUrlBaseEndpoint;
   UserToken userToken;
   http.Client client = new http.Client();
 
-  String get serverRootUrl {
-    return Uri.parse(apiUrl).origin;
+  Future<List<ClassGroup>> getClasses() async {
+    dynamic result = await get('class');
+    return new List<ClassGroup>.from(result.map((x) => ClassGroup.fromJson(x)));
   }
 
-  Future<List<RollCall>> getRollCalls() async {
-    dynamic result = await get('rollcall');
+  Future<List<RollCall>> getRollCalls([int limit]) async {
+    dynamic result = await get('rollcall', limit == null ? null : {'limit': limit.toString()});
     return new List<RollCall>.from(result.map((x) => RollCall.fromJson(x)));
   }
 
@@ -27,8 +32,42 @@ class HeimdallApi {
     return post('rollcall', rollCall.toJson());
   }
 
+
+
+  String get serverRootUrl {
+    return apiUrlProtocol + '://' + apiUrlHostname + '/';
+  }
+
+  String get apiUrl {
+    if (apiUrlProtocol == null || apiUrlHostname == null || apiUrlBaseEndpoint == null) {
+      return null;
+    }
+    String url = apiUrlProtocol + '://' + apiUrlHostname + apiUrlBaseEndpoint;
+    return url;
+  }
+
+  set apiUrl(String url) {
+    Uri uri = Uri.parse(url);
+    apiUrlProtocol = uri.scheme;
+    apiUrlHostname = uri.host;
+    apiUrlBaseEndpoint = uri.path;
+    if (apiUrlBaseEndpoint.endsWith('/')) {
+      apiUrlBaseEndpoint = apiUrlBaseEndpoint.substring(0, apiUrlBaseEndpoint.length - 1);
+    }
+  }
+
+  Uri getApiUri(String endpoint, [Map<String, String> parameters]) {
+    Uri uri;
+    if (apiUrlProtocol == 'https') {
+      uri = Uri.https(apiUrlHostname, apiUrlBaseEndpoint + '/' + endpoint, parameters);
+    } else {
+      uri = Uri.http(apiUrlHostname, apiUrlBaseEndpoint + '/' + endpoint, parameters);
+    }
+    return uri;
+  }
+
   Future<Map<String, dynamic>> refreshUserToken() async {
-    if (userToken == null && apiUrl == null) {
+    if (userToken == null && apiUrlHostname == null) {
       throw new AuthException(AuthExceptionType.not_authenticated);
     }
     return userToken.refresh(apiUrl);
@@ -74,24 +113,24 @@ class HeimdallApi {
     }
   }
 
-  Future<dynamic> get(String endpoint) async {
-    return _sendRequest(new http.Request("GET", Uri.parse('$apiUrl/$endpoint')));
+  Future<dynamic> get(String endpoint, [Map<String, String> parameters]) async {
+    return _sendRequest(new http.Request("GET", getApiUri(endpoint, parameters)));
   }
 
   Future<dynamic> post(String endpoint, Map<String, dynamic> data) async {
-    final http.Request request = new http.Request("POST", Uri.parse('$apiUrl/$endpoint'));
+    final http.Request request = new http.Request("POST", getApiUri(endpoint));
     request.body = json.encode(data);
     return _sendRequest(request);
   }
 
   Future<dynamic> put(String endpoint, Map<String, dynamic> data) async {
-    final http.Request request = new http.Request("POST", Uri.parse('$apiUrl/$endpoint'));
+    final http.Request request = new http.Request("POST", getApiUri(endpoint));
     request.body = json.encode(data);
     return _sendRequest(request);
   }
 
   Future<dynamic> delete(String endpoint) async {
-    return _sendRequest(new http.Request("DELETE", Uri.parse('$apiUrl/$endpoint')));
+    return _sendRequest(new http.Request("DELETE", getApiUri(endpoint)));
   }
 
   Future<User> signIn(String apiUrl, String username, String password) async {

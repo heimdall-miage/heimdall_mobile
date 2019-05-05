@@ -52,6 +52,10 @@ abstract class Logged<T extends StatefulWidget> extends State<T> {
     return null;
   }
 
+  Widget getFloatingButton() {
+    return null;
+  }
+
   ScaffoldFeatureController<SnackBar, SnackBarClosedReason> showSnackBar(SnackBar snackbar) {
     return scaffoldKey.currentState.showSnackBar(snackbar);
   }
@@ -82,6 +86,7 @@ abstract class Logged<T extends StatefulWidget> extends State<T> {
         ],
       ),
       body: _body,
+      floatingActionButton: getFloatingButton(),
     );
   }
 

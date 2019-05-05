@@ -3,12 +3,17 @@ import 'package:heimdall/model/student_presence.dart';
 import 'package:heimdall/model/teacher.dart';
 
 class RollCall {
+  static const STATUS_DRAFT = 'draft';
+  static const STATUS_VALID = 'valid';
+  static const STATUS_CANCEL = 'cancel';
+
   ClassGroup classGroup;
   Teacher teacher;
   List<StudentPresence> studentPresences;
   int id;
   DateTime dateStart;
   DateTime dateEnd;
+  String status = RollCall.STATUS_DRAFT;
 
   RollCall({
     this.classGroup,
@@ -17,6 +22,7 @@ class RollCall {
     this.id,
     this.dateStart,
     this.dateEnd,
+    this.status,
   });
 
   factory RollCall.fromJson(Map<String, dynamic> json) => new RollCall(
@@ -26,6 +32,7 @@ class RollCall {
     id: json["id"],
     dateStart: DateTime.parse(json["date_start"]),
     dateEnd: DateTime.parse(json["date_end"]),
+    status: json["status"],
   );
 
   Map<String, dynamic> toJson() => {
@@ -35,5 +42,6 @@ class RollCall {
     "id": id,
     "date_start": dateStart.toIso8601String(),
     "date_end": dateEnd.toIso8601String(),
+    "status": status,
   };
 }

@@ -58,8 +58,13 @@ class _LoginState extends State<Login> {
   }
 
   Future<String> _verifyServerUrl(String url) async {
-    if (Validator.validateUrl(url) == null) {
-      if (url.endsWith('/')) url.substring(0, url.length - 1);
+    final validateResult = Validator.validateUrl(url);
+    // Url format is not valid and does not contains http, try with https
+    if (validateResult != null && !url.contains('http')) {
+      return await _verifyServerUrl('https://' + url);
+    } else if (validateResult == null) {
+      if (url.endsWith('/')) url = url.substring(0, url.length - 1);
+      if (!url.contains('api')) url += '/api';
       print('Verify : $url');
       try {
         final response = await http.get(url + "/");
@@ -74,12 +79,10 @@ class _LoginState extends State<Login> {
           }
         }
       } catch (e) {
-        print(e); // TEMP
-      }
-
-      // Recheck after adding /api to the url
-      if (!url.contains('api')) {
-        return await _verifyServerUrl(url + '/api');
+        // If https don't work, try with http protocol
+        if (url.contains('https://')) {
+          return await _verifyServerUrl(url.replaceFirst('https', 'http'));
+        }
       }
     }
 
