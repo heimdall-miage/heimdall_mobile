@@ -6,6 +6,7 @@ import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:heimdall/exceptions/api_connect.dart';
 import 'package:heimdall/exceptions/auth.dart';
 import 'package:heimdall/model/rollcall.dart';
+import 'package:heimdall/model/student.dart';
 import 'package:heimdall/model/user.dart';
 import "package:http/http.dart" as http;
 
@@ -17,6 +18,11 @@ class HeimdallApi {
   String apiUrlBaseEndpoint;
   UserToken userToken;
   http.Client client = new http.Client();
+
+  Future<List<Student>> getStudentsInClass(int classId) async {
+    dynamic result = await get('class/$classId/students');
+    return new List<Student>.from(result.map((x) => Student.fromJson(x)));
+  }
 
   Future<List<ClassGroup>> getClasses() async {
     dynamic result = await get('class');
@@ -31,8 +37,6 @@ class HeimdallApi {
   Future<RollCall> createRollCall(RollCall rollCall) {
     return post('rollcall', rollCall.toJson());
   }
-
-
 
   String get serverRootUrl {
     return apiUrlProtocol + '://' + apiUrlHostname + '/';
