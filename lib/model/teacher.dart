@@ -5,6 +5,7 @@ import 'package:heimdall/model/user.dart';
 class Teacher extends User {
   List<ClassGroup> classGroups;
   List<RollCall> rollCalls;
+  get type => 'teacher';
 
   Teacher({int id, String username, String firstname, String lastname, DateTime lastLogin, this.classGroups, this.rollCalls})
       : super(id: id, username: username, firstname: firstname, lastname: lastname, lastLogin: lastLogin);

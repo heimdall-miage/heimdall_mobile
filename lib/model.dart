@@ -18,7 +18,7 @@ class AppModel extends Model {
   }
 
   Future<void> signOut() async {
-    await api.delete('/token/refresh');
+    await api.delete('token/refresh');
     user = null;
     deleteStoredToken();
   }

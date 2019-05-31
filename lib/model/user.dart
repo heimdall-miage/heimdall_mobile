@@ -9,6 +9,7 @@ abstract class User {
   String firstname;
   String lastname;
   DateTime lastLogin;
+  get type;
 
   User({this.id, this.username, this.firstname, this.lastname, this.lastLogin});
 

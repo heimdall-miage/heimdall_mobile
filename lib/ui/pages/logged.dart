@@ -80,7 +80,7 @@ abstract class Logged<T extends StatefulWidget> extends State<T> {
           IconButton(
             icon: Icon(FontAwesomeIcons.solidUserCircle),
             onPressed: () {
-              changeRoute(context, '/account');
+              changeRoute(context, '/account', roleSpecific: true);
             },
           ),
         ],
@@ -91,7 +91,10 @@ abstract class Logged<T extends StatefulWidget> extends State<T> {
   }
 
   // Pour changer de route uniquement si on y est pas déjà (évite une animation inutile)
-  void changeRoute(BuildContext context, String newRouteName) {
+  void changeRoute(BuildContext context, String newRouteName, { bool roleSpecific = false }) {
+    if (roleSpecific) {
+      newRouteName = '/' + user.type + newRouteName;
+    }
     if (ModalRoute.of(context).settings.name != newRouteName) {
       Navigator.pushNamed(context, newRouteName);
     }

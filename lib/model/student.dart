@@ -6,6 +6,7 @@ class Student extends User {
   String photo;
   ClassGroup classGroup;
   List<StudentPresence> presences;
+  get type => 'student';
 
   Student({int id, String username, String firstname, String lastname, DateTime lastLogin, this.photo, this.classGroup, this.presences})
       : super(id: id, username: username, firstname: firstname, lastname: lastname, lastLogin: lastLogin);

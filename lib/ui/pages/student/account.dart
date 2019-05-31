@@ -73,7 +73,7 @@ class _AccountState extends Logged<Account> with WidgetsBindingObserver {
   }
 
   @override
-  Widget getBody() {
+  Widget build(BuildContext context) {
     Widget _body = loading ? Center(child: Stack(children: <Widget>[CircularProgressIndicator()])) :
     SafeArea(
         child: CustomScrollView(

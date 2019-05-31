@@ -9,6 +9,7 @@ import 'package:heimdall/ui/pages/login.dart';
 import 'package:heimdall/ui/pages/student/account.dart' as student_account;
 import 'package:heimdall/ui/pages/student/home.dart' as student_home;
 import 'package:heimdall/ui/pages/teacher/home.dart' as teacher_home;
+import 'package:heimdall/ui/pages/teacher/account.dart' as teacher_account;
 import 'package:heimdall/ui/pages/teacher/rollcall_create.dart';
 import 'package:scoped_model/scoped_model.dart';
 
@@ -77,6 +78,7 @@ class App extends StatelessWidget {
 
               // Teacher specifics
               '/teacher/home': (context) => teacher_home.Home(),
+              '/teacher/account': (context) => teacher_account.Account(),
               '/teacher/rollcall/create': (context) => RollCallCreate(),
             }),
       );
