@@ -15,6 +15,7 @@ class RollCallCreate extends StatefulWidget {
 class _RollCallCreateState extends Logged<RollCallCreate> {
   List<ClassGroup> _classGroups = [];
   RollCall _rollCall = new RollCall();
+  bool includeBaseContainer = false;
 
 
   @override
@@ -123,33 +124,50 @@ class _RollCallCreateState extends Logged<RollCallCreate> {
                 value: _rollCall.classGroup,
                 onChanged: _onClassGroupChanged,
               ),
-              DataTable(
-                columns: [
-                  DataColumn(label: Text('Photo')),
-                  DataColumn(label: Text('Nom')),
-                  DataColumn(label: Text('Retard')),
-                ],
-                rows: _rollCall.studentPresences.length == 0 ? [] : _rollCall.studentPresences.map(
-                      (studentPresence) =>
-                      DataRow(
-                          selected: studentPresence.present,
-                          onSelectChanged: (b) {
-                            setState(() {
-                              studentPresence.present = !studentPresence.present;
-                            });
-                          },
-                          cells: [
-                            DataCell(
-                              CachedNetworkImage(imageUrl: api.serverRootUrl + studentPresence.student.photo),
+              Expanded(
+                  child: ListView.builder(
+                      itemCount: _rollCall.studentPresences.length,
+                      itemBuilder: (BuildContext context, int index) {
+                        StudentPresence studentPresence = _rollCall.studentPresences[index];
+                        return Ink(
+                          color: _rollCall.studentPresences[index].present
+                              ? Color.fromRGBO(0, 200, 0, 0.2)
+                              : Color.fromRGBO(200, 0, 0, 0.2),
+                          child: ListTile(
+                            title: Text(studentPresence.student.lastname + ' ' +
+                                studentPresence.student.firstname),
+                            leading: studentPresence.student.photo == null
+                                ? null
+                                : CachedNetworkImage(
+                                imageUrl: api.serverRootUrl +
+                                    studentPresence.student.photo,
+                                height: 40),
+                            trailing: IconButton(
+                                icon: Icon(Icons.access_time),
+                                onPressed: () {
+                                  showDialog(
+                                    context: context,
+                                    builder: (BuildContext context) {
+                                      return SimpleDialog(
+                                        title: Text('Retard de ' + studentPresence.student.firstname + ' ' + studentPresence.student.lastname),
+                                        children: <Widget>[
+                                          // TODO
+                                        ],
+                                      );
+                                    }
+                                  );
+                                }
                             ),
-                            DataCell(
-                              Text(studentPresence.student.lastname + ' ' + studentPresence.student.firstname),
-                            ),
-                            DataCell(
-                              Icon(FontAwesomeIcons.clock),
-                            ),
-                          ]),
-                ).toList(),
+                            onTap: () {
+                              setState(() {
+                                _rollCall.studentPresences[index].present =
+                                !_rollCall.studentPresences[index].present;
+                              });
+                            },
+                          ),
+                        );
+                      }
+                  )
               ),
               RaisedButton(child: Text('Valider'), onPressed: _save)
             ]
