@@ -44,9 +44,9 @@ class RollCall {
 
   factory RollCall.fromJson(Map<String, dynamic> json) => new RollCall(
     id: json["id"],
-    classGroup: ClassGroup.fromJson(json["class_group"]),
-    teacher: Teacher.fromJson(json["teacher"]),
-    studentPresences: new List<StudentPresence>.from(json["student_presences"].map((x) => StudentPresence.fromJson(x))),
+    classGroup: json["class_group"] == null ? null : ClassGroup.fromJson(json["class_group"]),
+    teacher: json["teacher"] == null ? null : Teacher.fromJson(json["teacher"]),
+    studentPresences: json["student_presences"] == null ? null :  new List<StudentPresence>.from(json["student_presences"].map((x) => StudentPresence.fromJson(x))),
     dateStart: DateTime.parse(json["date_start"]),
     dateEnd: DateTime.parse(json["date_end"]),
     status: json["status"],

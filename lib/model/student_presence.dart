@@ -25,7 +25,7 @@ class StudentPresence {
   });
 
   factory StudentPresence.fromJson(Map<String, dynamic> json) => new StudentPresence(
-    student: Student.fromJson(json["student"]),
+    student: json["student"] == null ? null : Student.fromJson(json["student"]),
     rollCall: json["roll_call"] == null ? null : RollCall.fromJson(json["roll_call"]),
     id: json["id"],
     present: json["present"],
@@ -34,6 +34,8 @@ class StudentPresence {
     excuseProof: json["excuse_proof"],
     excuseValidated: json["excuse_validated"],
   );
+
+
 
   Map<String, dynamic> toJson() => {
     "student": student.toJson(),
