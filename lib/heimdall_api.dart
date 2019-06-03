@@ -7,6 +7,7 @@ import 'package:heimdall/exceptions/api_connect.dart';
 import 'package:heimdall/exceptions/auth.dart';
 import 'package:heimdall/model/rollcall.dart';
 import 'package:heimdall/model/student.dart';
+import 'package:heimdall/model/student_presence.dart';
 import 'package:heimdall/model/user.dart';
 import "package:http/http.dart" as http;
 
@@ -32,6 +33,11 @@ class HeimdallApi {
   Future<List<RollCall>> getRollCalls([int limit]) async {
     dynamic result = await get('rollcall', limit == null ? null : {'limit': limit.toString()});
     return new List<RollCall>.from(result.map((x) => RollCall.fromJson(x)));
+  }
+
+  Future<List<StudentPresence>> getStudentPresences() async {
+    dynamic result = await get('student/presences');
+    return new List<StudentPresence>.from(result.map((x) => StudentPresence.fromJson(x)));
   }
 
   Future<RollCall> createRollCall(RollCall rollCall) {
