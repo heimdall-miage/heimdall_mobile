@@ -26,7 +26,7 @@ class RollCall {
     this.status,
   }) {
     if (dateStart == null) dateStart = new DateTime.now();
-    if (dateEnd == null) dateEnd = new DateTime.now().add(new Duration(hours: 1));
+    if (dateEnd == null) dateEnd = new DateTime.now().add(new Duration(hours: 2));
     if (studentPresences == null) studentPresences = new List<StudentPresence>();
   }
 
@@ -42,6 +42,10 @@ class RollCall {
   }
   TimeOfDay get endAt => dateEnd == null ? null : new TimeOfDay(hour: dateEnd.hour, minute: dateEnd.minute);
 
+  Duration get diff {
+    return dateEnd.difference(dateStart);
+  }
+
   factory RollCall.fromJson(Map<String, dynamic> json) => new RollCall(
     id: json["id"],
     classGroup: json["class_group"] == null ? null : ClassGroup.fromJson(json["class_group"]),
@@ -54,10 +58,10 @@ class RollCall {
 
   Map<String, dynamic> toJson() => {
     "id": id,
-    "class_group": classGroup.toJson(),
-    "teacher": teacher.toJson(),
+    "class_group": classGroup.id,
+    "teacher": teacher.id,
     "student_presences": new List<dynamic>.from(studentPresences.map((x) => x.toJson())),
-    "date_start": dateStart.toIso8601String(),
+    "date_start": dateStart.(),
     "date_end": dateEnd.toIso8601String(),
     "status": status,
   };

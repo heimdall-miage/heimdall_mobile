@@ -40,8 +40,8 @@ class HeimdallApi {
     return new List<StudentPresence>.from(result.map((x) => StudentPresence.fromJson(x)));
   }
 
-  Future<RollCall> createRollCall(RollCall rollCall) {
-    return post('rollcall', rollCall.toJson());
+  Future<RollCall> createRollCall(RollCall rollCall) async {
+    return RollCall.fromJson(await post('rollcall', rollCall.toJson()));
   }
 
   String get serverRootUrl {

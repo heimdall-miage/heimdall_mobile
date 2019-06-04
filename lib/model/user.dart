@@ -10,6 +10,7 @@ abstract class User {
   String lastname;
   DateTime lastLogin;
   get type;
+  String get fullName => firstname + ' ' + lastname;
 
   User({this.id, this.username, this.firstname, this.lastname, this.lastLogin});
 

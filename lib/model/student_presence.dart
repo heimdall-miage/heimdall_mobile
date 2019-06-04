@@ -8,7 +8,7 @@ class StudentPresence {
   RollCall rollCall;
   int id;
   bool present;
-  int lateDuration; // late is a reserved keyword
+  Duration lateDuration = const Duration(minutes: 0); // late is a reserved keyword
   String excuse;
   String excuseProof;
   bool excuseValidated;
@@ -18,7 +18,7 @@ class StudentPresence {
     this.rollCall,
     this.id,
     this.present,
-    this.lateDuration,
+    this.lateDuration = const Duration(minutes: 0),
     this.excuse,
     this.excuseProof,
     this.excuseValidated,
@@ -29,20 +29,18 @@ class StudentPresence {
     rollCall: json["roll_call"] == null ? null : RollCall.fromJson(json["roll_call"]),
     id: json["id"],
     present: json["present"],
-    lateDuration: json["late"],
+    lateDuration: Duration(minutes: json["late"]),
     excuse: json["excuse"],
     excuseProof: json["excuse_proof"],
     excuseValidated: json["excuse_validated"],
   );
 
-
-
   Map<String, dynamic> toJson() => {
-    "student": student.toJson(),
+    "student": student.id,
     "roll_call": rollCall == null ? null : rollCall.toJson(),
     "id": id,
     "present": present,
-    "late": lateDuration,
+    "late": lateDuration != null && lateDuration.inMinutes > 0 ? lateDuration.inMinutes : null,
     "excuse": excuse,
     "excuse_proof": excuseProof,
     "excuse_validated": excuseValidated,
