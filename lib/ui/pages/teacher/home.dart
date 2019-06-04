@@ -10,6 +10,7 @@ class Home extends StatefulWidget {
 
 class _HomeState extends Logged<Home> {
   List<RollCall> _rollCalls = [];
+  List<RollCall> _rollCalls2 = [];
   bool includeBaseContainer = false;
 
   @override
@@ -21,6 +22,7 @@ class _HomeState extends Logged<Home> {
     _getRollCalls();
   }
 
+
   void _getRollCalls() async {
     List<RollCall> rollCalls = await api.getRollCalls(20);
       setState(() {
@@ -28,6 +30,15 @@ class _HomeState extends Logged<Home> {
         loading = false;
       });
   }
+
+  void _getRollCallsLastWeek() async {
+    List<RollCall> rollCalls = await api.getRollCallsLastWeek();
+    setState(() {
+      _rollCalls2 = rollCalls;
+      loading = false;
+    });
+  }
+
 
   void _showAddRollCall() {
     Navigator.of(context).pushNamed('/teacher/rollcall/create');
