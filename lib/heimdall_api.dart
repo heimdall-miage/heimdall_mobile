@@ -35,6 +35,12 @@ class HeimdallApi {
     return new List<RollCall>.from(result.map((x) => RollCall.fromJson(x)));
   }
 
+  Future<List<RollCall>> getRollCallsLastWeek() async {
+    dynamic result = await get('rollcall/lastweek');
+    return new List<RollCall>.from(result.map((x) => RollCall.fromJson(x)));
+  }
+
+
   Future<List<StudentPresence>> getStudentPresences() async {
     dynamic result = await get('student/presences');
     return new List<StudentPresence>.from(result.map((x) => StudentPresence.fromJson(x)));
