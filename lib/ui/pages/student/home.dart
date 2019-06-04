@@ -1,6 +1,5 @@
 
 import 'package:flutter/material.dart';
-import 'package:heimdall/model.dart';
 import 'package:heimdall/model/student_presence.dart';
 import 'package:heimdall/ui/pages/logged.dart';
 
@@ -38,6 +37,7 @@ class _HomeState extends Logged<Home> {
         itemBuilder: (BuildContext context, int index) {
           return ListTile(
             title: Text("Absence du " + _studentPresences[index].rollCall.dateStart.toString()),
+            onTap: () => Navigator.of(context).pushNamed('/student/justify', arguments: _studentPresences[index]),
           );
         }
     );
