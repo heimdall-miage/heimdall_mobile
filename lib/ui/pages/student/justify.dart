@@ -17,6 +17,8 @@ class _JustifyState extends Logged<Justify> {
   StudentPresence _presence;
   List<String> _excuses = [];
   bool includeBaseContainer = false;
+  File justificativeFile;
+  Image temp;
 
   @override
   void didChangeDependencies() {
@@ -32,8 +34,7 @@ class _JustifyState extends Logged<Justify> {
     _getExcuses();
   }
 
-  Future<void> _loadPicture() async {
-    File justificativeFile = await ImagePicker.pickImage(source: ImageSource.gallery, maxHeight: 200, maxWidth: 200);
+  Future<void> _saveJustification() async {
     if (justificativeFile != null) {
     String url = await api.post('student/presence/' + _presence.id.toString(), {
     'photoBase64': base64Encode(justificativeFile.readAsBytesSync()),
@@ -44,6 +45,14 @@ class _JustifyState extends Logged<Justify> {
       // todo
     }
     }
+  }
+
+  Future<void> _displayPicture() async {
+    File tempFile = await ImagePicker.pickImage(source: ImageSource.gallery, maxHeight: 200, maxWidth: 200);
+    setState(() {
+        justificativeFile=tempFile;
+    });
+
   }
 
 
@@ -81,13 +90,26 @@ class _JustifyState extends Logged<Justify> {
             });
           },
         ),
+          FlatButton(
+            child: Text('Ajouter une photo'),
+            onPressed: _displayPicture,
+      ),
+
+        justificativeFile == null ? Text('coucou') :
+        Image(
+        image: AssetImage(
+            justificativeFile.path
+        ),
+    ),
 
         FlatButton(
-          child: Text('Ajouter une photo'),
-          onPressed: _loadPicture,
-        )
+          child: Text('Valider'),
+          onPressed: _saveJustification,
+        ),
 
       ],
+
+
     );
 
   }
