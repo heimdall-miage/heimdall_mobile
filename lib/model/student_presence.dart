@@ -29,7 +29,7 @@ class StudentPresence {
     rollCall: json["roll_call"] == null ? null : RollCall.fromJson(json["roll_call"]),
     id: json["id"],
     present: json["present"],
-    lateDuration: Duration(minutes: json["late"]),
+    lateDuration: Duration(minutes: json["late"] != null ? json["late"] : 0),
     excuse: json["excuse"],
     excuseProof: json["excuse_proof"],
     excuseValidated: json["excuse_validated"],

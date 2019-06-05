@@ -61,7 +61,7 @@ class RollCall {
     "class_group": classGroup.id,
     "teacher": teacher.id,
     "student_presences": new List<dynamic>.from(studentPresences.map((x) => x.toJson())),
-    "date_start": dateStart.(),
+    "date_start": dateStart.toIso8601String(),
     "date_end": dateEnd.toIso8601String(),
     "status": status,
   };
