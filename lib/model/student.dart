@@ -11,6 +11,16 @@ class Student extends User {
   Student({int id, String username, String firstname, String lastname, DateTime lastLogin, this.photo, this.classGroup, this.presences})
       : super(id: id, username: username, firstname: firstname, lastname: lastname, lastLogin: lastLogin);
 
+  factory Student.fromApi(dynamic data) {
+    if (data is int) {
+      return new Student(id: data);
+    }
+    if (data is Map<String, dynamic>) {
+      return Student.fromJson(data);
+    }
+    throw new Exception('Invalid format');
+  }
+
   factory Student.fromJson(Map<String, dynamic> json) => new Student(
     id: json["id"],
     username: json["username"],
@@ -18,8 +28,8 @@ class Student extends User {
     lastname: json["lastname"],
     lastLogin: json["last_login"] == null ? null : DateTime.parse(json["last_login"]),
     photo: json["photo"] == null ? null : json["photo"],
-    classGroup: json['class_group'] == null ? null : ClassGroup.fromJson(json['class_group']),
-    presences: json['presences'] == null ? null : new List<StudentPresence>.from(json["presences"].map((x) => StudentPresence.fromJson(x))),
+    classGroup: json['class_group'] == null ? null : ClassGroup.fromApi(json['class_group']),
+    presences: json['presences'] == null ? null : new List<StudentPresence>.from(json["presences"].map((x) => StudentPresence.fromApi(x))),
   );
 
   Map<String, dynamic> toJson() => {

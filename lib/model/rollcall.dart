@@ -23,7 +23,7 @@ class RollCall {
     this.studentPresences,
     this.dateStart,
     this.dateEnd,
-    this.status,
+    this.status = RollCall.STATUS_DRAFT,
   }) {
     if (dateStart == null) dateStart = new DateTime.now();
     if (dateEnd == null) dateEnd = new DateTime.now().add(new Duration(hours: 2));
@@ -46,11 +46,21 @@ class RollCall {
     return dateEnd.difference(dateStart);
   }
 
+  factory RollCall.fromApi(dynamic data) {
+    if (data is int) {
+      return new RollCall(id: data);
+    }
+    if (data is Map<String, dynamic>) {
+      return RollCall.fromJson(data);
+    }
+    throw new Exception('Invalid format');
+  }
+
   factory RollCall.fromJson(Map<String, dynamic> json) => new RollCall(
     id: json["id"],
-    classGroup: json["class_group"] == null ? null : ClassGroup.fromJson(json["class_group"]),
-    teacher: json["teacher"] == null ? null : Teacher.fromJson(json["teacher"]),
-    studentPresences: json["student_presences"] == null ? null :  new List<StudentPresence>.from(json["student_presences"].map((x) => StudentPresence.fromJson(x))),
+    classGroup: json["class_group"] == null ? null : ClassGroup.fromApi(json["class_group"]),
+    teacher: json["teacher"] == null ? null : Teacher.fromApi(json["teacher"]),
+    studentPresences: json["student_presences"] == null ? null :  new List<StudentPresence>.from(json["student_presences"].map((x) => StudentPresence.fromApi(x))),
     dateStart: DateTime.parse(json["date_start"]),
     dateEnd: DateTime.parse(json["date_end"]),
     status: json["status"],

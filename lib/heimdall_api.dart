@@ -41,7 +41,8 @@ class HeimdallApi {
   }
 
   Future<RollCall> createRollCall(RollCall rollCall) async {
-    return RollCall.fromJson(await post('rollcall', rollCall.toJson()));
+    dynamic result = await post('rollcall', rollCall.toJson());
+    return RollCall.fromJson(result);
   }
 
   Future<List<StudentPresence>> getStudentPresences() async {
@@ -107,7 +108,7 @@ class HeimdallApi {
     request.headers[HttpHeaders.acceptHeader] = ContentType.json.mimeType;
     request.headers[HttpHeaders.contentTypeHeader] = ContentType.json.mimeType;
     http.StreamedResponse response = await client.send(request)
-        .timeout(Duration(seconds: 10), onTimeout: () {
+        .timeout(Duration(seconds: 30), onTimeout: () {
       throw new ApiConnectException(type: ApiConnectExceptionType.timeout);
     });
 

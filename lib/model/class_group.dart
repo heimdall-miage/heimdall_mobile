@@ -17,12 +17,22 @@ class ClassGroup {
     this.rollCalls,
   });
 
+  factory ClassGroup.fromApi(dynamic data) {
+    if (data is int) {
+      return new ClassGroup(id: data);
+    }
+    if (data is Map<String, dynamic>) {
+      return ClassGroup.fromJson(data);
+    }
+    throw new Exception('Invalid format');
+  }
+
   factory ClassGroup.fromJson(Map<String, dynamic> json) => new ClassGroup(
     id: json["id"],
     name: json["name"],
-    students: json["students"] == null ? null : new List<Student>.from(json["students"].map((x) => Student.fromJson(x))),
-    teachers: json["teachers"] == null ? null : new List<Teacher>.from(json["teachers"].map((x) => Teacher.fromJson(x))),
-    rollCalls: json["roll_calls"] == null ? null : new List<RollCall>.from(json["roll_calls"].map((x) => RollCall.fromJson(x))),
+    students: json["students"] == null ? null : new List<Student>.from(json["students"].map((x) => Student.fromApi(x))),
+    teachers: json["teachers"] == null ? null : new List<Teacher>.from(json["teachers"].map((x) => Teacher.fromApi(x))),
+    rollCalls: json["roll_calls"] == null ? null : new List<RollCall>.from(json["roll_calls"].map((x) => RollCall.fromApi(x))),
   );
 
   Map<String, dynamic> toJson() => {

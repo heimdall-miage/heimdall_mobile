@@ -10,14 +10,24 @@ class Teacher extends User {
   Teacher({int id, String username, String firstname, String lastname, DateTime lastLogin, this.classGroups, this.rollCalls})
       : super(id: id, username: username, firstname: firstname, lastname: lastname, lastLogin: lastLogin);
 
+  factory Teacher.fromApi(dynamic data) {
+    if (data is int) {
+      return new Teacher(id: data);
+    }
+    if (data is Map<String, dynamic>) {
+      return Teacher.fromJson(data);
+    }
+    throw new Exception('Invalid format');
+  }
+
   factory Teacher.fromJson(Map<String, dynamic> json) => new Teacher(
     id: json["id"],
     username: json["username"],
     firstname: json["firstname"],
     lastname: json["lastname"],
     lastLogin: json["last_login"] == null ? null : DateTime.parse(json["last_login"]),
-    classGroups: json['class_groups'] == null ? null : new List<ClassGroup>.from(json["class_groups"].map((x) => ClassGroup.fromJson(x))),
-    rollCalls: json['roll_calls'] == null ? null : new List<RollCall>.from(json["roll_calls"].map((x) => RollCall.fromJson(x))),
+    classGroups: json['class_groups'] == null ? null : new List<ClassGroup>.from(json["class_groups"].map((x) => ClassGroup.fromApi(x))),
+    rollCalls: json['roll_calls'] == null ? null : new List<RollCall>.from(json["roll_calls"].map((x) => RollCall.fromApi(x))),
   );
 
   Map<String, dynamic> toJson() => {

@@ -11,6 +11,7 @@ abstract class User {
   DateTime lastLogin;
   get type;
   String get fullName => firstname + ' ' + lastname;
+  String get fullNameReversed => lastname + ' ' + firstname;
 
   User({this.id, this.username, this.firstname, this.lastname, this.lastLogin});
 

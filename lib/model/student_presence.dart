@@ -24,9 +24,19 @@ class StudentPresence {
     this.excuseValidated,
   });
 
+  factory StudentPresence.fromApi(dynamic data) {
+    if (data is int) {
+      return new StudentPresence(id: data);
+    }
+    if (data is Map<String, dynamic>) {
+      return StudentPresence.fromJson(data);
+    }
+    throw new Exception('Invalid format');
+  }
+
   factory StudentPresence.fromJson(Map<String, dynamic> json) => new StudentPresence(
-    student: json["student"] == null ? null : Student.fromJson(json["student"]),
-    rollCall: json["roll_call"] == null ? null : RollCall.fromJson(json["roll_call"]),
+    student: json["student"] == null ? null : Student.fromApi(json["student"]),
+    rollCall: json["roll_call"] == null ? null : RollCall.fromApi(json["roll_call"]),
     id: json["id"],
     present: json["present"],
     lateDuration: Duration(minutes: json["late"] != null ? json["late"] : 0),
