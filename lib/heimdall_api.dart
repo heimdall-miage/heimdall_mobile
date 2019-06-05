@@ -51,7 +51,7 @@ class HeimdallApi {
   }
 
   Future<List<String>> getExcuses() async {
-    dynamic result = await get('excuses');
+    dynamic result = await get('student/presence/excuses');
     return new List<String>.from(result);
   }
 
