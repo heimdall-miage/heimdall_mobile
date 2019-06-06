@@ -8,6 +8,7 @@ import 'package:heimdall/ui/pages/logged.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:path/path.dart' as p;
 
+
 class Justify extends StatefulWidget {
   @override
   State createState() => _JustifyState();
@@ -75,6 +76,17 @@ class _JustifyState extends Logged<Justify> {
     return items;
   }
 
+  void _showToast(BuildContext context) {
+    final scaffold = Scaffold.of(context);
+    scaffold.showSnackBar(
+      SnackBar(
+        content: const Text('Added to favorite'),
+        action: SnackBarAction(
+            label: 'UNDO', onPressed: scaffold.hideCurrentSnackBar),
+      ),
+    );
+  }
+
   @override
   Widget getBody() {
     return Column(
@@ -104,14 +116,17 @@ class _JustifyState extends Logged<Justify> {
 
         FlatButton(
           child: Text('Valider'),
-          onPressed: _saveJustification,
-        ),
+          onPressed:() {
+            _saveJustification();
+            Navigator.pushNamedAndRemoveUntil(context, '/student/home', (Route<dynamic> route) => false);
+          },
+    ),
 
-      ],
+    ],
 
 
     );
-
-  }
+    }
 
 }
+
