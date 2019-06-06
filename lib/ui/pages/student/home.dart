@@ -14,10 +14,11 @@ class _HomeState extends Logged<Home> {
   List<StudentPresence> _studentPresences = [];
   bool includeBaseContainer = false;
 
-//todo refresh auto après validation excuse
-  @override
-  void didUpdateWidget(old) {
-    super.didChangeDependencies();
+  void initState() {
+    setState(() {
+      loading = true;
+    });
+    super.initState();
     _getPresence();
   }
 
@@ -78,12 +79,21 @@ class _HomeState extends Logged<Home> {
     return ListView.builder(
         itemCount: _studentPresences.length,
         itemBuilder: (BuildContext context, int index) {
-          print(_studentPresences[index].excuseProof);
-          print(_studentPresences[index].excuseValidated);
           return ListTile(
             title: Text("Absence du " + _studentPresences[index].rollCall.dateStart.toString()),
             subtitle: _getPresenceValidationStatus(_studentPresences[index]),
-            onTap: () => Navigator.of(context).pushNamed('/student/justify', arguments: _studentPresences[index]),
+
+            onTap: () async {
+              if(_studentPresences[index].excuseProof==null){
+
+                dynamic returnedPresence = await Navigator.pushNamed(context, '/student/justify', arguments: _studentPresences[index]);
+                if (returnedPresence != null) {
+                    setState(() {
+                      _studentPresences[index] = returnedPresence;
+                    });
+                }
+              }
+            },
           );
         }
     );

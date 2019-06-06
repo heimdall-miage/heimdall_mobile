@@ -37,13 +37,19 @@ class _JustifyState extends Logged<Justify> {
 
   Future<void> _saveJustification() async {
     if (justificativeFile != null) {
-    String url = await api.post('student/presence/' + _presence.id.toString(), {
+    dynamic result = await api.post('student/presence/' + _presence.id.toString(), {
     'photoBase64': base64Encode(justificativeFile.readAsBytesSync()),
     'extension': p.extension(justificativeFile.path),
       'excuse': _presence.excuse
     });
-    if (url != null) {
-      // todo
+    StudentPresence returnedPresence = StudentPresence.fromApi(result);
+    if (returnedPresence != null) {
+      Navigator.pop(context, returnedPresence);
+    } else {
+      showSnackBar(SnackBar(
+          content: Text('Erreur lors de l\'enregistrement !'),
+          backgroundColor: Colors.red
+      ));
     }
     }
   }
@@ -116,10 +122,7 @@ class _JustifyState extends Logged<Justify> {
 
         FlatButton(
           child: Text('Valider'),
-          onPressed:() {
-            _saveJustification();
-            Navigator.pushNamedAndRemoveUntil(context, '/student/home', (Route<dynamic> route) => false);
-          },
+          onPressed: _saveJustification
     ),
 
     ],
