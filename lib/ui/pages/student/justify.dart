@@ -113,7 +113,7 @@ class _JustifyState extends Logged<Justify> {
             onPressed: _displayPicture,
       ),
 
-        justificativeFile == null ? Text('coucou') :
+        justificativeFile == null ? Text('Pas de justificatif') :
         Image(
         image: AssetImage(
             justificativeFile.path

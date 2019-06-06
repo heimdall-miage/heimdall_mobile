@@ -80,7 +80,8 @@ class _HomeState extends Logged<Home> {
         itemCount: _studentPresences.length,
         itemBuilder: (BuildContext context, int index) {
           return ListTile(
-            title: Text("Absence du " + _studentPresences[index].rollCall.dateStart.toString()),
+            title: Text(_studentPresences[index].present==false ? "Absence du " + _studentPresences[index].rollCall.dateStart.toString():
+            "Retard du " + _studentPresences[index].rollCall.dateStart.toString()),
             subtitle: _getPresenceValidationStatus(_studentPresences[index]),
 
             onTap: () async {
