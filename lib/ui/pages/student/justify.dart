@@ -2,6 +2,7 @@
 import 'dart:convert';
 import 'dart:io';
 
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:heimdall/model/student_presence.dart';
 import 'package:heimdall/ui/pages/logged.dart';
@@ -19,7 +20,7 @@ class _JustifyState extends Logged<Justify> {
   List<String> _excuses = [];
   bool includeBaseContainer = false;
   File justificativeFile;
-  Image temp;
+  //Image temp;
 
   @override
   void didChangeDependencies() {
@@ -54,7 +55,7 @@ class _JustifyState extends Logged<Justify> {
     }
   }
 
-  Future<void> _displayPicture() async {
+  Future<void> _savePicture() async {
     File tempFile = await ImagePicker.pickImage(source: ImageSource.gallery, maxHeight: 200, maxWidth: 200);
     setState(() {
         justificativeFile=tempFile;
@@ -93,6 +94,21 @@ class _JustifyState extends Logged<Justify> {
     );
   }
 
+  Widget _displayPicture(){
+    if(justificativeFile==null && _presence.excuseProof==null){
+        return Text('pas de justification');
+    }
+    if(justificativeFile==null && _presence.excuseProof!=null){
+      print(api.serverRootUrl+_presence.excuseProof);
+      return Image(image: CachedNetworkImageProvider(api.serverRootUrl+_presence.excuseProof));
+    }
+
+    else{
+      print(justificativeFile.path);
+      return Image(image: AssetImage(justificativeFile.path));
+    }
+  }
+
   @override
   Widget getBody() {
     return Column(
@@ -110,19 +126,12 @@ class _JustifyState extends Logged<Justify> {
         ),
           FlatButton(
             child: Text('Ajouter une photo'),
-            onPressed: _displayPicture,
+            onPressed: _savePicture,
       ),
-
-        justificativeFile == null ? Text('Pas de justificatif') :
-        Image(
-        image: AssetImage(
-            justificativeFile.path
-        ),
-    ),
-
+        _displayPicture(),
         FlatButton(
           child: Text('Valider'),
-          onPressed: _saveJustification
+          onPressed: _saveJustification,
     ),
 
     ],

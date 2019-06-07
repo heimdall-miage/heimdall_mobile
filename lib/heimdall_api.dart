@@ -46,7 +46,7 @@ class HeimdallApi {
   }
 
   Future<List<StudentPresence>> getStudentPresences() async {
-    dynamic result = await get('student/presences');
+    dynamic result = await get('student/presence');
     return new List<StudentPresence>.from(result.map((x) => StudentPresence.fromJson(x)));
   }
 

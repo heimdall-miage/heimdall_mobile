@@ -63,11 +63,11 @@ class _HomeState extends Logged<Home> {
           alignment: Alignment.topLeft
       );
     }
-    //refusé : noir
+    //refusé : rouge
     return Align(
         child: Chip(
           label: Text('Refusé'),
-          backgroundColor: Color.fromRGBO(255, 255, 255, 0.7),
+          backgroundColor: Color.fromRGBO(250, 0, 0, 0.7),
         ),
         alignment: Alignment.topLeft
     );
@@ -85,7 +85,7 @@ class _HomeState extends Logged<Home> {
             subtitle: _getPresenceValidationStatus(_studentPresences[index]),
 
             onTap: () async {
-              if(_studentPresences[index].excuseProof==null){
+              if(_studentPresences[index].excuseProof==null || _studentPresences[index].excuseValidated==false){
 
                 dynamic returnedPresence = await Navigator.pushNamed(context, '/student/justify', arguments: _studentPresences[index]);
                 if (returnedPresence != null) {
