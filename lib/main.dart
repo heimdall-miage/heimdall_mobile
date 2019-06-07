@@ -49,7 +49,8 @@ class App extends StatelessWidget {
         model: model,
         child: MaterialApp(
             theme: ThemeData(
-              primaryColor: Color.fromRGBO(227, 196, 7, 1),
+              primaryColor: Color.fromRGBO(230, 230, 230, 1),
+              accentColor: Colors.lightBlue,
             ),
             title: 'Heimdall',
             home: FutureBuilder<User>(

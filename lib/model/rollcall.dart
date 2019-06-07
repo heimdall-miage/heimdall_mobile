@@ -66,11 +66,11 @@ class RollCall {
     status: json["status"],
   );
 
-  Map<String, dynamic> toJson() => {
+  Map<String, dynamic> toJson({bool forApi = true}) => {
     "id": id,
-    "class_group": classGroup.id,
-    "teacher": teacher.id,
-    "student_presences": new List<dynamic>.from(studentPresences.map((x) => x.toJson())),
+    "class_group": forApi ? classGroup.id : classGroup.toJson(),
+    "teacher": forApi ? teacher.id : teacher.toJson(),
+    "student_presences": new List<dynamic>.from(studentPresences.map((x) => x.toJson(forApi: forApi))),
     "date_start": dateStart.toIso8601String(),
     "date_end": dateEnd.toIso8601String(),
     "status": status,

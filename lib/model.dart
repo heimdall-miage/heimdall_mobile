@@ -3,15 +3,25 @@ import 'dart:convert';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:heimdall/heimdall_api.dart';
+import 'package:heimdall/helper/flash.dart';
 import 'package:heimdall/model/user.dart';
 import 'package:scoped_model/scoped_model.dart';
+
 
 class AppModel extends Model {
   static AppModel of(BuildContext context) => ScopedModel.of<AppModel>(context);
   final GlobalKey navigator = GlobalKey<NavigatorState>();
   final HeimdallApi api = new HeimdallApi();
+  Flash _flash;
   User user;
   bool get isLoggedIn => user != null;
+
+  set flash(flash) => _flash = flash;
+  Flash get flash {
+    Flash flash = _flash;
+    _flash = null;
+    return flash;
+  }
 
   Future<void> signIn(String apiUrl, String username, String password) async {
     this.user = await api.signIn(apiUrl, username, password);
