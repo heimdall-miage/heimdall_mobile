@@ -7,6 +7,7 @@ import 'package:heimdall/model/student_presence.dart';
 import 'package:heimdall/ui/pages/logged.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:path/path.dart' as p;
+import 'package:toast/toast.dart';
 
 
 class Justify extends StatefulWidget {
@@ -43,6 +44,9 @@ class _JustifyState extends Logged<Justify> {
       'excuse': _presence.excuse
     });
     StudentPresence returnedPresence = StudentPresence.fromApi(result);
+
+    Toast.show("Justificatif envoyé",context ,duration: Toast.LENGTH_LONG, gravity:  Toast.BOTTOM);
+
     if (returnedPresence != null) {
       Navigator.pop(context, returnedPresence);
     } else {
@@ -113,7 +117,7 @@ class _JustifyState extends Logged<Justify> {
             onPressed: _displayPicture,
       ),
 
-        justificativeFile == null ? Text('Pas de justificatif') :
+        justificativeFile == null ? Text('Pas de justificatif ajouté.') :
         Image(
         image: AssetImage(
             justificativeFile.path
