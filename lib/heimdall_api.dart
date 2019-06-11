@@ -40,6 +40,11 @@ class HeimdallApi {
     return new List<RollCall>.from(result.map((x) => RollCall.fromJson(x)));
   }
 
+  Future<RollCall> updateRollCall(RollCall rollCall) async {
+    dynamic result = await put('rollcall/${rollCall.id}', rollCall.toJson());
+    return RollCall.fromJson(result);
+  }
+
   Future<RollCall> createRollCall(RollCall rollCall) async {
     dynamic result = await post('rollcall', rollCall.toJson());
     return RollCall.fromJson(result);

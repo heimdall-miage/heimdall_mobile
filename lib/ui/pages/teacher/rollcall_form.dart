@@ -1,33 +1,53 @@
+import 'dart:convert';
+import 'dart:io';
+
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
-import 'package:heimdall/helper/flash.dart';
-import 'package:heimdall/model.dart';
+import 'package:flutter_duration_picker/flutter_duration_picker.dart';
 import 'package:heimdall/model/class_group.dart';
 import 'package:heimdall/model/rollcall.dart';
 import 'package:heimdall/model/student.dart';
 import 'package:heimdall/model/student_presence.dart';
 import 'package:heimdall/ui/pages/logged.dart';
-import 'package:flutter_duration_picker/flutter_duration_picker.dart';
-import 'dart:io';
-import 'dart:convert';
-import 'package:path_provider/path_provider.dart';
 import 'package:intl/intl.dart';
+import 'package:path_provider/path_provider.dart';
 
-class RollCallCreate extends StatefulWidget {
+class RollCallForm extends StatefulWidget {
   @override
-  State createState() => _RollCallCreateState();
+  State createState() => _RollCallFormState();
 }
 
-class _RollCallCreateState extends Logged<RollCallCreate> {
+class _RollCallFormState extends Logged<RollCallForm> {
   List<ClassGroup> _classGroups = [];
   RollCall _rollCall = new RollCall();
   bool includeBaseContainer = false;
   bool _loadingStudents = false;
+  bool _isUpdate = false;
+  bool _draftLoadAsked = false;
 
   @override
   void initState() {
     super.initState();
     _init();
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    if (ModalRoute.of(context).settings.arguments != null) {
+      _rollCall = ModalRoute.of(context).settings.arguments;
+      _isUpdate = true;
+    }
+    if (!_isUpdate && !_draftLoadAsked) {
+      _draftLoadAsked = true;
+      setState(() {
+        loading = true;
+      });
+      _resumeDraft();
+      setState(() {
+        loading = false;
+      });
+    }
   }
 
   _init() async {
@@ -36,7 +56,6 @@ class _RollCallCreateState extends Logged<RollCallCreate> {
     });
     _rollCall.teacher = user;
     await _getClassGroups();
-    await _resumeDraft();
     setState(() {
       loading = false;
     });
@@ -46,6 +65,9 @@ class _RollCallCreateState extends Logged<RollCallCreate> {
     List<ClassGroup> classGroups = await api.getClasses();
     setState(() {
       _classGroups = classGroups;
+      if (_rollCall.classGroup != null) {
+        _rollCall.classGroup = _classGroups.singleWhere((classGroup) => classGroup.id == _rollCall.classGroup.id);
+      }
     });
   }
 
@@ -104,12 +126,14 @@ class _RollCallCreateState extends Logged<RollCallCreate> {
   }
 
   _deleteDraft() async {
+    if (_isUpdate) return;
     final directory = await getApplicationDocumentsDirectory();
     final file = File('${directory.path}/$draftFile');
     await file.delete();
   }
 
   _saveDraft() async {
+    if (_isUpdate) return;
     final directory = await getApplicationDocumentsDirectory();
     final file = File('${directory.path}/$draftFile');
     await file.writeAsString(jsonEncode(_rollCall.toJson(forApi: false)));
@@ -145,12 +169,23 @@ class _RollCallCreateState extends Logged<RollCallCreate> {
   }
 
   _save() async {
+    if (_rollCall.classGroup == null || _rollCall.studentPresences.isEmpty) {
+      showSnackBar(SnackBar(
+          content: Text('La classe est vide !'),
+          backgroundColor: Colors.red
+      ));
+      return;
+    }
     setState(() {
       loading = true;
     });
     RollCall rollcall;
     try {
-      rollcall = await api.createRollCall(_rollCall);
+      if (_isUpdate) {
+        rollcall = await api.updateRollCall(_rollCall);
+      } else {
+        rollcall = await api.createRollCall(_rollCall);
+      }
     } catch (e) {
       print(e);
       setState(() {
@@ -162,12 +197,11 @@ class _RollCallCreateState extends Logged<RollCallCreate> {
       ));
     }
     if (rollcall != null) {
-      AppModel.of(context).flash = new Flash(type: FlashType.SUCCESS, message: "L'appel a bien été validé.");
       _deleteDraft();
       setState(() {
         loading = false;
       });
-      Navigator.of(context).pop();
+      Navigator.of(context).pop(rollcall);
     }
   }
 

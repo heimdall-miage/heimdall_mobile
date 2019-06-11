@@ -46,6 +46,8 @@ class RollCall {
     return dateEnd.difference(dateStart);
   }
 
+  bool get isPassed => dateEnd == null ? null : dateEnd.isBefore(new DateTime.now());
+
   factory RollCall.fromApi(dynamic data) {
     if (data is int) {
       return new RollCall(id: data);

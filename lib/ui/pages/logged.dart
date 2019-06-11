@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:heimdall/heimdall_api.dart';
-import 'package:heimdall/helper/flash.dart';
 import 'package:heimdall/model.dart';
 import 'package:heimdall/model/user.dart';
 
@@ -19,15 +18,6 @@ abstract class Logged<T extends StatefulWidget> extends State<T> {
     setState(() {
       user = checkLoggedIn(context);
     });
-    print('init');
-    Flash flash = AppModel.of(context).flash;
-    if (flash != null) {
-      print('show flash');
-      showSnackBar(SnackBar(
-          content: Text(flash.message),
-          backgroundColor: flash.color,
-        ));
-    }
   }
 
   void showErrorDialog(e) {
