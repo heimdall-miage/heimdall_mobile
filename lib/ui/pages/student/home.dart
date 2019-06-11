@@ -36,7 +36,7 @@ class _HomeState extends Logged<Home> {
     if (studentPresence.excuseProof == null) {
       return Align(
           child: Chip(
-              label: Text('a justifier'),
+              label: Text('À justifier'),
               backgroundColor: Color.fromRGBO(250, 0, 0, 0.7),
           ),
           alignment: Alignment.topLeft
@@ -46,7 +46,7 @@ class _HomeState extends Logged<Home> {
     else if (studentPresence.excuseValidated == null && studentPresence.excuseProof!=null) {
       return Align(
           child: Chip(
-            label: Text('en attende de validation'),
+            label: Text('En attende de validation'),
             backgroundColor: Color.fromRGBO(250, 150, 0, 0.7),
           ),
           alignment: Alignment.topLeft
