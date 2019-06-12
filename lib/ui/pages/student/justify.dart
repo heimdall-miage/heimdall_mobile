@@ -1,15 +1,13 @@
-
 import 'dart:convert';
 import 'dart:io';
 
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:heimdall/model/student_presence.dart';
+import 'package:heimdall/ui/components/named_card.dart';
 import 'package:heimdall/ui/pages/logged.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:path/path.dart' as p;
-import 'package:toast/toast.dart';
-
 
 class Justify extends StatefulWidget {
   @override
@@ -38,35 +36,50 @@ class _JustifyState extends Logged<Justify> {
   }
 
   Future<void> _saveJustification() async {
-    if (justificativeFile != null) {
-    dynamic result = await api.post('student/presence/' + _presence.id.toString(), {
-    'photoBase64': base64Encode(justificativeFile.readAsBytesSync()),
-    'extension': p.extension(justificativeFile.path),
-      'excuse': _presence.excuse
-    });
-    StudentPresence returnedPresence = StudentPresence.fromApi(result);
+    if (justificativeFile != null && _presence.excuse != null) {
+      setState(() {
+        loading = true;
+      });
+      StudentPresence returnedPresence;
+      try {
+        dynamic result = await api.post('student/presence/${_presence.id}/excuse', {
+          'photoBase64': base64Encode(justificativeFile.readAsBytesSync()),
+          'extension': p.extension(justificativeFile.path),
+          'excuse': _presence.excuse
+        });
+        returnedPresence = StudentPresence.fromApi(result);
+      } catch (e) {
+        print(e);
+      }
 
-    Toast.show("Justificatif envoyé",context ,duration: Toast.LENGTH_LONG, gravity:  Toast.BOTTOM);
-
-    if (returnedPresence != null) {
-      Navigator.pop(context, returnedPresence);
+      if (returnedPresence != null) {
+        Navigator.pop(context, returnedPresence);
+      } else {
+        setState(() {
+          loading = false;
+        });
+        showSnackBar(SnackBar(content: Text('Erreur lors de l\'enregistrement !'), backgroundColor: Colors.red));
+      }
     } else {
-      showSnackBar(SnackBar(
-          content: Text('Erreur lors de l\'enregistrement !'),
-          backgroundColor: Colors.red
-      ));
-    }
+      showSnackBar(SnackBar(content: Text('Renseignez une raison et un justificatif.'), backgroundColor: Colors.red));
     }
   }
 
-  Future<void> _savePicture() async {
-    File tempFile = await ImagePicker.pickImage(source: ImageSource.gallery, maxHeight: 200, maxWidth: 200);
+  Future<void> _selectPicture() async {
+    File tempFile =
+        await ImagePicker.pickImage(source: ImageSource.gallery, maxHeight: 200, maxWidth: 200);
     setState(() {
-        justificativeFile=tempFile;
+      justificativeFile = tempFile;
     });
-
   }
 
+  Future<void> _takePicture() async {
+    File tempFile =
+        await ImagePicker.pickImage(source: ImageSource.camera, maxHeight: 200, maxWidth: 200);
+    setState(() {
+      justificativeFile = tempFile;
+    });
+  }
 
   void _getExcuses() async {
     List<String> excuses = await api.getExcuses();
@@ -76,37 +89,38 @@ class _JustifyState extends Logged<Justify> {
     });
   }
 
+  String _getExcuseLabel(String excuse) {
+    switch (excuse) {
+      case 'sick':
+        return 'Malade';
+      case 'family':
+        return 'Raison familiale';
+      case 'transport':
+        return 'Problème de transport';
+      case 'work':
+        return 'Raison professionnelle';
+      case 'other':
+      default:
+        return 'Autre raison';
+    }
+  }
+
   List<DropdownMenuItem<String>> get _excusesDropdown {
     List<DropdownMenuItem<String>> items = new List();
     for (String excuse in _excuses) {
-      items.add(new DropdownMenuItem(
-          value: excuse,
-          child: new Text(excuse)
-      ));
+      items.add(new DropdownMenuItem(value: excuse, child: new Text(_getExcuseLabel(excuse))));
     }
     return items;
   }
 
-  void _showToast(BuildContext context) {
-    final scaffold = Scaffold.of(context);
-    scaffold.showSnackBar(
-      SnackBar(
-        content: const Text('Added to favorite'),
-        action: SnackBarAction(
-            label: 'UNDO', onPressed: scaffold.hideCurrentSnackBar),
-      ),
-    );
-  }
-
-  Widget _displayPicture(){
-    if(justificativeFile==null && _presence.excuseProof==null){
-        return Text('pas de justification');
+  Widget _displayPicture() {
+    if (justificativeFile == null && _presence.excuseProof == null) {
+      return Center(child: Text('En attente du justificatif'));
     }
-    if(justificativeFile==null && _presence.excuseProof!=null){
-      return Image(image: CachedNetworkImageProvider(_presence.excuseProof, headers: api.authHeader));
-    }
-
-    else{
+    if (justificativeFile == null && _presence.excuseProof != null) {
+      return Image(
+          image: CachedNetworkImageProvider(_presence.excuseProof, headers: api.authHeader));
+    } else {
       print(justificativeFile.path);
       return Image(image: AssetImage(justificativeFile.path));
     }
@@ -114,34 +128,71 @@ class _JustifyState extends Logged<Justify> {
 
   @override
   Widget getBody() {
-    return Column(
-      children: <Widget>[
-        DropdownButton<String>(
-          isExpanded: true,
-          hint: Text('Choisissez la justification'),
-          items: _excusesDropdown,
-          value: _presence.excuse,
-          onChanged: (val) {
-            setState(() {
-              _presence.excuse = val;
-            });
-          },
-        ),
-          FlatButton(
-            child: Text('Ajouter une photo'),
-            onPressed: _savePicture,
-      ),
-        _displayPicture(),
-        FlatButton(
-          child: Text('Valider'),
-          onPressed: _saveJustification,
-    ),
-
-    ],
-
-
-    );
-    }
-
+    return Padding(
+        padding: EdgeInsets.only(top: 20, left: 5, right: 5),
+        child: Column(children: <Widget>[
+          NamedCard(
+            title: 'Raison',
+            children: <Widget>[
+              Padding(
+                child: DropdownButton<String>(
+                  isExpanded: true,
+                  hint: Text('Choisissez la raison'),
+                  items: _excusesDropdown,
+                  value: _presence.excuse,
+                  onChanged: (val) {
+                    setState(() {
+                      _presence.excuse = val;
+                    });
+                  },
+                ),
+                padding: EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+              )
+            ],
+          ),
+          NamedCard(
+            title: 'Justificatif',
+            children: <Widget>[
+              SizedBox(
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: <Widget>[
+                    FlatButton(
+                      child: Row(
+                        children: <Widget>[
+                          Icon(Icons.add_photo_alternate),
+                          Text('Importer une photo')
+                        ],
+                      ),
+                      onPressed: _selectPicture,
+                    ),
+                    FlatButton(
+                      child: Row(
+                        children: <Widget>[Icon(Icons.add_a_photo), Text('Prendre une photo')],
+                      ),
+                      onPressed: _takePicture,
+                    ),
+                  ],
+                  ),
+                width: double.infinity,
+                ),
+            ],
+            ),
+          Expanded(
+            child: _displayPicture(),
+            ),
+          SizedBox(
+              width: double.infinity,
+              child: RaisedButton(
+                  child: Text('Valider'),
+                  padding: EdgeInsets.symmetric(vertical: 10),
+                  color: Theme
+                      .of(context)
+                      .accentColor,
+                  textColor: Colors.white,
+                  onPressed: _saveJustification
+                  )
+              )
+        ]));
+  }
 }
-
