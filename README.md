@@ -1,16 +1,12 @@
-# heimdall_mobile
+# Heimdall
 
-A new Flutter project.
+This project is still in development. Please install [Flutter](https://flutter.dev/docs/get-started/install) to run it.
 
-## Getting Started
+# How to use the app
 
-This project is a starting point for a Flutter application.
 
-A few resources to get you started if this is your first Flutter project:
+If demo accounts have been created for you, you can use our demo server at [heimdall.watch](https://heimdall.watch).
 
-- [Lab: Write your first Flutter app](https://flutter.io/docs/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://flutter.io/docs/cookbook)
+OR
 
-For help getting started with Flutter, view our 
-[online documentation](https://flutter.io/docs), which offers tutorials, 
-samples, guidance on mobile development, and a full API reference.
+You need to run a Heimdall server (using our [dev docker](https://github.com/heimdall-watch/heimdall_docker) for now).
