@@ -65,6 +65,12 @@ class HeimdallApi {
     return new List<String>.from(result);
   }
 
+  void ResetPassword() async {
+    dynamic result = await get('student/reset_password');
+    
+
+  }
+
   Map<String, String> get authHeader {
     return {
       HttpHeaders.authorizationHeader: 'Bearer ${userToken.token}',

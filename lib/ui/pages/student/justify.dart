@@ -13,7 +13,6 @@ class Justify extends StatefulWidget {
   @override
   State createState() => _JustifyState();
 }
-
 class _JustifyState extends Logged<Justify> {
   StudentPresence _presence;
   List<String> _excuses = [];

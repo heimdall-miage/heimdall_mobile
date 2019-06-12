@@ -5,6 +5,7 @@ import 'package:heimdall/model.dart';
 import 'package:heimdall/model/student.dart';
 import 'package:heimdall/model/teacher.dart';
 import 'package:heimdall/model/user.dart';
+import 'package:heimdall/reset_password.dart';
 import 'package:heimdall/ui/pages/login.dart';
 import 'package:heimdall/ui/pages/student/account.dart' as student_account;
 import 'package:heimdall/ui/pages/student/home.dart' as student_home;
@@ -82,7 +83,7 @@ class App extends StatelessWidget {
             routes: {
               // Globales
               '/login': (context) => Login(),
-//              '/reset_password': (context) => ResetPassword(),
+              '/reset_password': (context) => ResetPassword(),
 
               // Student specifics
               '/student/home': (context) => student_home.Home(),
