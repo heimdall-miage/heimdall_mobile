@@ -2,6 +2,7 @@
 import 'package:flutter/material.dart';
 import 'package:heimdall/model/student_presence.dart';
 import 'package:heimdall/ui/pages/logged.dart';
+import 'package:pull_to_refresh/pull_to_refresh.dart';
 
 class Home extends StatefulWidget {
   @override
@@ -12,16 +13,17 @@ class _HomeState extends Logged<Home> {
 
   List<StudentPresence> _studentPresences = [];
   bool includeBaseContainer = false;
+  RefreshController _refreshController;
 
   void initState() {
-    setState(() {
-      loading = true;
-    });
     super.initState();
-    _getPresence();
+    _refreshController = RefreshController(initialRefresh:true);
   }
 
   void _getPresence() async {
+    setState(() {
+      loading = true;
+    });
     List<StudentPresence> studentPresences = await api.getStudentPresences();
     setState(() {
       _studentPresences = studentPresences;
@@ -75,12 +77,17 @@ class _HomeState extends Logged<Home> {
   @override
   Widget getBody() {
 
-    return ListView.builder(
+    return SmartRefresher(
+      enablePullDown: true,
+      enablePullUp: true,
+      onRefresh: () => _getPresence(),
+      controller: _refreshController,
+      child: ListView.builder(
         itemCount: _studentPresences.length,
         itemBuilder: (BuildContext context, int index) {
           return ListTile(
             title: Text(_studentPresences[index].present==false ? "Absence du " + _studentPresences[index].rollCall.dateStart.toString():
-            "Retard du " + _studentPresences[index].rollCall.dateStart.toString()),
+                        "Retard du " + _studentPresences[index].rollCall.dateStart.toString()),
             subtitle: _getPresenceValidationStatus(_studentPresences[index]),
 
             onTap: () async {
@@ -88,14 +95,15 @@ class _HomeState extends Logged<Home> {
 
                 dynamic returnedPresence = await Navigator.pushNamed(context, '/student/justify', arguments: _studentPresences[index]);
                 if (returnedPresence != null) {
-                    setState(() {
-                      _studentPresences[index] = returnedPresence;
-                    });
+                  setState(() {
+                    _studentPresences[index] = returnedPresence;
+                  });
                 }
               }
             },
-          );
+            );
         }
+        ),
     );
   }
 

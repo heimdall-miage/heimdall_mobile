@@ -94,7 +94,7 @@ class _AccountState extends Logged<Account> with WidgetsBindingObserver {
               flexibleSpace: FlexibleSpaceBar(
                 background: student.photo != null ? Image(
                   fit: BoxFit.cover,
-                  image: CachedNetworkImageProvider(api.serverRootUrl + student.photo),
+                  image: CachedNetworkImageProvider(student.photo, headers: api.authHeader),
                 ) : null,
               ),
             ),

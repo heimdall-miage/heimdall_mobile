@@ -358,8 +358,8 @@ class _RollCallFormState extends Logged<RollCallForm> {
                                 leading: studentPresence.student.photo == null
                                     ? Icon(Icons.person, size: 80)
                                     : CachedNetworkImage(
-                                    imageUrl: api.serverRootUrl +
-                                        studentPresence.student.photo,
+                                    imageUrl: studentPresence.student.photo,
+                                    httpHeaders: api.authHeader,
                                     height: 80),
                                 trailing: IconButton(
                                   icon: Icon(Icons.access_time),

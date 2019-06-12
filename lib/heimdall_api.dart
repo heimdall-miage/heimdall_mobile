@@ -65,6 +65,11 @@ class HeimdallApi {
     return new List<String>.from(result);
   }
 
+  Map<String, String> get authHeader {
+    return {
+      HttpHeaders.authorizationHeader: 'Bearer ${userToken.token}',
+    };
+  }
 
   String get serverRootUrl {
     return apiUrlProtocol + '://' + apiUrlHostname + '/';

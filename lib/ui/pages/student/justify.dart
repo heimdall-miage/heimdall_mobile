@@ -103,8 +103,7 @@ class _JustifyState extends Logged<Justify> {
         return Text('pas de justification');
     }
     if(justificativeFile==null && _presence.excuseProof!=null){
-      print(api.serverRootUrl+_presence.excuseProof);
-      return Image(image: CachedNetworkImageProvider(api.serverRootUrl+_presence.excuseProof));
+      return Image(image: CachedNetworkImageProvider(_presence.excuseProof, headers: api.authHeader));
     }
 
     else{
