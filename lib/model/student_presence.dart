@@ -45,8 +45,8 @@ class StudentPresence {
     excuseValidated: json["excuse_validated"],
   );
 
-  Map<String, dynamic> toJson() => {
-    "student": student.id,
+  Map<String, dynamic> toJson({bool forApi = true}) => {
+    "student": forApi ? student.id : student.toJson(),
     "roll_call": rollCall == null ? null : rollCall.toJson(),
     "id": id,
     "present": present,

@@ -28,7 +28,8 @@ dependencies:
   path: ^1.6.2
   image_picker: ^0.6.0+2
   flutter_duration_picker: ^1.0.0
-
+  intl: ^0.15.8
+  toast: ^0.1.4
 
 dev_dependencies:
   flutter_test:

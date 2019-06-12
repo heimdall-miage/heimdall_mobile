@@ -39,6 +39,8 @@ class _AccountState extends Logged<Account> with WidgetsBindingObserver {
         _newPasswordController.text = "";
         _oldPasswordController.text = "";
       });
+    } else {
+      throw new Exception('Certains champs sont vides ou invalides.');
     }
   }
 

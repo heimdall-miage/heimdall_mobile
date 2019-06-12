@@ -36,7 +36,7 @@ class Teacher extends User {
     "username": username,
     "firstname": firstname,
     "lastname": lastname,
-    "last_login": lastLogin == null ? null : lastLogin,
+    "last_login": lastLogin == null ? null : lastLogin.toIso8601String(),
     "class_groups": classGroups == null ? null : new List<dynamic>.from(classGroups.map((x) => x.toJson())),
     "roll_calls": rollCalls == null ? null : new List<dynamic>.from(rollCalls.map((x) => x.toJson())),
   };

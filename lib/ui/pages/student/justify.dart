@@ -2,7 +2,6 @@
 import 'dart:convert';
 import 'dart:io';
 
-import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:heimdall/model/student_presence.dart';
 import 'package:heimdall/ui/pages/logged.dart';
@@ -20,7 +19,7 @@ class _JustifyState extends Logged<Justify> {
   List<String> _excuses = [];
   bool includeBaseContainer = false;
   File justificativeFile;
-  //Image temp;
+  Image temp;
 
   @override
   void didChangeDependencies() {
@@ -44,6 +43,9 @@ class _JustifyState extends Logged<Justify> {
       'excuse': _presence.excuse
     });
     StudentPresence returnedPresence = StudentPresence.fromApi(result);
+
+    Toast.show("Justificatif envoyé",context ,duration: Toast.LENGTH_LONG, gravity:  Toast.BOTTOM);
+
     if (returnedPresence != null) {
       Navigator.pop(context, returnedPresence);
     } else {

@@ -1,40 +1,142 @@
+import 'dart:convert';
+import 'dart:io';
+
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_duration_picker/flutter_duration_picker.dart';
 import 'package:heimdall/model/class_group.dart';
 import 'package:heimdall/model/rollcall.dart';
 import 'package:heimdall/model/student.dart';
 import 'package:heimdall/model/student_presence.dart';
 import 'package:heimdall/ui/pages/logged.dart';
-import 'package:flutter_duration_picker/flutter_duration_picker.dart';
+import 'package:intl/intl.dart';
+import 'package:path_provider/path_provider.dart';
 
-class RollCallCreate extends StatefulWidget {
+class RollCallForm extends StatefulWidget {
   @override
-  State createState() => _RollCallCreateState();
+  State createState() => _RollCallFormState();
 }
 
-class _RollCallCreateState extends Logged<RollCallCreate> {
+class _RollCallFormState extends Logged<RollCallForm> {
   List<ClassGroup> _classGroups = [];
   RollCall _rollCall = new RollCall();
   bool includeBaseContainer = false;
-
-
+  bool _loadingStudents = false;
+  bool _isUpdate = false;
+  bool _draftLoadAsked = false;
 
   @override
   void initState() {
+    super.initState();
+    _init();
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    if (ModalRoute.of(context).settings.arguments != null) {
+      _rollCall = ModalRoute.of(context).settings.arguments;
+      _isUpdate = true;
+    }
+    if (!_isUpdate && !_draftLoadAsked) {
+      _draftLoadAsked = true;
+      setState(() {
+        loading = true;
+      });
+      _resumeDraft();
+      setState(() {
+        loading = false;
+      });
+    }
+  }
+
+  _init() async {
     setState(() {
       loading = true;
     });
-    super.initState();
-    _getClassGroups();
-
+    _rollCall.teacher = user;
+    await _getClassGroups();
+    setState(() {
+      loading = false;
+    });
   }
 
   _getClassGroups() async {
     List<ClassGroup> classGroups = await api.getClasses();
     setState(() {
       _classGroups = classGroups;
-      loading = false;
+      if (_rollCall.classGroup != null) {
+        _rollCall.classGroup = _classGroups.singleWhere((classGroup) => classGroup.id == _rollCall.classGroup.id);
+      }
     });
+  }
+
+  static const String draftFile = 'current_rollcall.json';
+  _resumeDraft() async {
+    try {
+      final directory = await getApplicationDocumentsDirectory();
+      final file = File('${directory.path}/$draftFile');
+      if (!(await file.exists())) {
+        return;
+      }
+      String text = await file.readAsString();
+      RollCall rollCall = RollCall.fromApi(jsonDecode(text));
+      if (rollCall != null) {
+        await showDialog(
+          context: context,
+          barrierDismissible: false,
+          builder: (BuildContext context) {
+            // return object of type Dialog
+            return AlertDialog(
+              title: new Text("Continuer l'appel ?"),
+              content: new Text('Vous avez déjà un appel en cours (non validé) le ${DateFormat('dd/MM/yyy à kk:mm').format(rollCall.dateStart)} avec la classe "${rollCall.classGroup.name}", voulez-vous le récupérer ?'),
+              actions: <Widget>[
+                new FlatButton(
+                  child: new Text("Supprimer cet appel"),
+                  onPressed: () {
+                    Navigator.of(context).pop();
+                    _deleteDraft();
+                  },
+                  ),
+                new FlatButton(
+                  child: new Text("Non"),
+                  onPressed: () {
+                    Navigator.of(context).pop();
+                  },
+                  ),
+                new FlatButton(
+                  child: new Text("Oui"),
+                  onPressed: () {
+                    Navigator.of(context).pop();
+                    // Use the classgroup object from the list, otherwise the dropdown init fail
+                    rollCall.classGroup = _classGroups.singleWhere((group) => group.id == rollCall.classGroup.id);
+                    setState(() {
+                      _rollCall = rollCall;
+                    });
+                  },
+                  ),
+              ],
+              );
+          },
+          );
+      }
+    } catch (e) {
+      print("Couldn't read file");
+    }
+  }
+
+  _deleteDraft() async {
+    if (_isUpdate) return;
+    final directory = await getApplicationDocumentsDirectory();
+    final file = File('${directory.path}/$draftFile');
+    await file.delete();
+  }
+
+  _saveDraft() async {
+    if (_isUpdate) return;
+    final directory = await getApplicationDocumentsDirectory();
+    final file = File('${directory.path}/$draftFile');
+    await file.writeAsString(jsonEncode(_rollCall.toJson(forApi: false)));
   }
 
   List<DropdownMenuItem<ClassGroup>> get _classGroupsDropdown {
@@ -51,7 +153,7 @@ class _RollCallCreateState extends Logged<RollCallCreate> {
   _onClassGroupChanged(ClassGroup classGroup) async {
     setState(() {
       _rollCall.classGroup = classGroup;
-      loading = true;
+      _loadingStudents = true;
     });
     List<Student> students = await api.getStudentsInClass(classGroup.id);
     List<StudentPresence> presences = new List<StudentPresence>();
@@ -61,20 +163,29 @@ class _RollCallCreateState extends Logged<RollCallCreate> {
     setState(() {
       _rollCall.studentPresences.clear();
       _rollCall.studentPresences.addAll(presences);
-      loading = false;
+      _loadingStudents = false;
     });
-
+    _saveDraft();
   }
 
   _save() async {
+    if (_rollCall.classGroup == null || _rollCall.studentPresences.isEmpty) {
+      showSnackBar(SnackBar(
+          content: Text('La classe est vide !'),
+          backgroundColor: Colors.red
+      ));
+      return;
+    }
     setState(() {
       loading = true;
     });
-    _rollCall.teacher = user;
-    print(user.id);
     RollCall rollcall;
     try {
-      rollcall = await api.createRollCall(_rollCall);
+      if (_isUpdate) {
+        rollcall = await api.updateRollCall(_rollCall);
+      } else {
+        rollcall = await api.createRollCall(_rollCall);
+      }
     } catch (e) {
       print(e);
       setState(() {
@@ -86,13 +197,11 @@ class _RollCallCreateState extends Logged<RollCallCreate> {
       ));
     }
     if (rollcall != null) {
+      _deleteDraft();
       setState(() {
         loading = false;
       });
-      showSnackBar(SnackBar(
-          content: Text('Appel enregistré !'),
-          backgroundColor: Colors.lightGreen
-      ));
+      Navigator.of(context).pop(rollcall);
     }
   }
 
@@ -117,6 +226,7 @@ class _RollCallCreateState extends Logged<RollCallCreate> {
           studentPresence.present = true;
           studentPresence.lateDuration = duration;
         });
+        _saveDraft();
       } else {
         showSnackBar(SnackBar(
             content: Text('Durée de retard invalide !'),
@@ -129,11 +239,12 @@ class _RollCallCreateState extends Logged<RollCallCreate> {
   _togglePresent(StudentPresence studentPresence) {
     setState(() {
       // Reset duration
-      if (studentPresence.lateDuration != Duration) {
+      if (studentPresence.lateDuration != Duration()) {
         studentPresence.lateDuration = Duration();
       }
       studentPresence.present = !studentPresence.present;
     });
+    _saveDraft();
   }
 
   Widget _getStudentPresenceStatus(StudentPresence studentPresence) {
@@ -158,7 +269,7 @@ class _RollCallCreateState extends Logged<RollCallCreate> {
 
   @override
   Widget getBody() {
-    final TextStyle hourStyle = new TextStyle(fontSize: 20, color: Colors.lightBlue);
+    final TextStyle hourStyle = new TextStyle(fontSize: 20, color: Theme.of(context).accentColor);
     return Padding(
         padding: EdgeInsets.only(top: 20, left: 5, right: 5),
         child: Column(
@@ -216,9 +327,14 @@ class _RollCallCreateState extends Logged<RollCallCreate> {
               ),
               Expanded(
                   child: Card(
-                      child: _rollCall.studentPresences.length == 0 ? Center(
-                          child: Text("En attente d'une sélection de classe...")) : ListView
-                          .builder(
+                      child: _loadingStudents ? Center(child: Stack(
+                          children: <Widget>[CircularProgressIndicator()]))
+                          : _rollCall.studentPresences.length == 0 ? Center(
+                          child: Text(_rollCall.classGroup == null
+                              ? "En attente d'une sélection de classe..."
+                              : "Cette classe n'a aucun élève.")
+                           )
+                          : ListView.builder(
                           itemCount: _rollCall.studentPresences.length,
                           itemBuilder: (BuildContext context, int index) {
                             StudentPresence studentPresence = _rollCall
@@ -260,9 +376,10 @@ class _RollCallCreateState extends Logged<RollCallCreate> {
         SizedBox(
             width: double.infinity,
             child: RaisedButton(
-                  child: Text('Valider'),
+                  child: Text('Confirmer et enregistrer'),
                   padding: EdgeInsets.symmetric(vertical: 10),
-                  color: Theme.of(context).primaryColor,
+                  color: Theme.of(context).accentColor,
+                  textColor: Colors.white,
                   onPressed: _save
               ))
             ]

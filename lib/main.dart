@@ -11,9 +11,10 @@ import 'package:heimdall/ui/pages/student/home.dart' as student_home;
 import 'package:heimdall/ui/pages/student/justify.dart';
 import 'package:heimdall/ui/pages/teacher/account.dart' as teacher_account;
 import 'package:heimdall/ui/pages/teacher/home.dart' as teacher_home;
-import 'package:heimdall/ui/pages/teacher/rollcall_create.dart';
-import 'package:scoped_model/scoped_model.dart';
-import 'package:onesignal/onesignal.dart'; //One Signal for push notification system
+import 'package:heimdall/ui/pages/teacher/rollcall_form.dart';
+import 'package:intl/intl.dart';
+import 'package:onesignal/onesignal.dart';
+import 'package:scoped_model/scoped_model.dart'; //One Signal for push notification system
 
 final model = new AppModel();
 
@@ -37,6 +38,7 @@ class App extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    Intl.defaultLocale = 'fr_FR';
 
     OneSignal.shared.init("1cce1366-61f0-493d-856c-88b4b3384c87", iOSSettings: {
       OSiOSSettings.autoPrompt: false,
@@ -49,7 +51,8 @@ class App extends StatelessWidget {
         model: model,
         child: MaterialApp(
             theme: ThemeData(
-              primaryColor: Color.fromRGBO(227, 196, 7, 1),
+              primaryColor: Color.fromRGBO(230, 230, 230, 1),
+              accentColor: Colors.lightBlue,
             ),
             title: 'Heimdall',
             home: FutureBuilder<User>(
@@ -89,7 +92,7 @@ class App extends StatelessWidget {
               // Teacher specifics
               '/teacher/home': (context) => teacher_home.Home(),
               '/teacher/account': (context) => teacher_account.Account(),
-              '/teacher/rollcall/create': (context) => RollCallCreate(),
+              '/teacher/rollcall': (context) => RollCallForm(),
             }),
       );
   }

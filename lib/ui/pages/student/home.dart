@@ -2,7 +2,6 @@
 import 'package:flutter/material.dart';
 import 'package:heimdall/model/student_presence.dart';
 import 'package:heimdall/ui/pages/logged.dart';
-import 'package:onesignal/onesignal.dart';
 
 class Home extends StatefulWidget {
   @override
@@ -37,7 +36,7 @@ class _HomeState extends Logged<Home> {
     if (studentPresence.excuseProof == null) {
       return Align(
           child: Chip(
-              label: Text('a justifier'),
+              label: Text('À justifier'),
               backgroundColor: Color.fromRGBO(250, 0, 0, 0.7),
           ),
           alignment: Alignment.topLeft
@@ -47,7 +46,7 @@ class _HomeState extends Logged<Home> {
     else if (studentPresence.excuseValidated == null && studentPresence.excuseProof!=null) {
       return Align(
           child: Chip(
-            label: Text('en attende de validation'),
+            label: Text('En attende de validation'),
             backgroundColor: Color.fromRGBO(250, 150, 0, 0.7),
           ),
           alignment: Alignment.topLeft
