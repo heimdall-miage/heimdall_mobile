@@ -2,11 +2,13 @@
 import 'dart:convert';
 import 'dart:io';
 
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:heimdall/model/student_presence.dart';
 import 'package:heimdall/ui/pages/logged.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:path/path.dart' as p;
+import 'package:toast/toast.dart';
 
 
 class Justify extends StatefulWidget {
