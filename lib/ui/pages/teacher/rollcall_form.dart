@@ -1,7 +1,6 @@
 import 'dart:convert';
 import 'dart:io';
 
-import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_duration_picker/flutter_duration_picker.dart';
 import 'package:heimdall/model/class_group.dart';
@@ -357,9 +356,9 @@ class _RollCallFormState extends Logged<RollCallForm> {
                                 dense: true,
                                 leading: studentPresence.student.photo == null
                                     ? Icon(Icons.person, size: 80)
-                                    : CachedNetworkImage(
-                                    imageUrl: studentPresence.student.photo,
-                                    httpHeaders: api.authHeader,
+                                    : Image.network(
+                                    studentPresence.student.photo,
+                                    headers: api.authHeader,
                                     height: 80),
                                 trailing: IconButton(
                                   icon: Icon(Icons.access_time),
