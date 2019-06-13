@@ -180,11 +180,11 @@ class HeimdallApi {
   _registerOneSignal(String onesignalAppId, User user) async {
     try {
       print('REGISTER TO ONESIGNAL : ' + onesignalAppId);
-      OneSignal.shared.init(onesignalAppId, iOSSettings: {
+      await OneSignal.shared.init(onesignalAppId, iOSSettings: {
         OSiOSSettings.autoPrompt: false,
         OSiOSSettings.inAppLaunchUrl: true
       });
-      OneSignal.shared.setInFocusDisplayType(OSNotificationDisplayType.notification);
+      await OneSignal.shared.setInFocusDisplayType(OSNotificationDisplayType.notification);
 
       OSPermissionSubscriptionState state = await OneSignal.shared.getPermissionSubscriptionState();
 
@@ -221,7 +221,7 @@ class HeimdallApi {
       final User user = User.fromJson(data['user']);
       this.userToken = UserToken.fromJson(data);
 
-      await _registerOneSignal(data['onesignal_app_id'], user);
+      _registerOneSignal(data['onesignal_app_id'], user);
 
       // Save the url & token on the phone to be able to reconnect the user later
       final storage = new FlutterSecureStorage();
