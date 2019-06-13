@@ -14,7 +14,6 @@ import 'package:heimdall/ui/pages/teacher/account.dart' as teacher_account;
 import 'package:heimdall/ui/pages/teacher/home.dart' as teacher_home;
 import 'package:heimdall/ui/pages/teacher/rollcall_form.dart';
 import 'package:intl/intl.dart';
-import 'package:onesignal/onesignal.dart';
 import 'package:scoped_model/scoped_model.dart'; //One Signal for push notification system
 
 final model = new AppModel();
@@ -40,12 +39,6 @@ class App extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     Intl.defaultLocale = 'fr_FR';
-
-    OneSignal.shared.init("1cce1366-61f0-493d-856c-88b4b3384c87", iOSSettings: {
-      OSiOSSettings.autoPrompt: false,
-      OSiOSSettings.inAppLaunchUrl: true
-    });
-    OneSignal.shared.setInFocusDisplayType(OSNotificationDisplayType.notification);
 
     return
       ScopedModel<AppModel>(

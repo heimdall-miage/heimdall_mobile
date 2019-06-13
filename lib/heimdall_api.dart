@@ -10,6 +10,7 @@ import 'package:heimdall/model/student.dart';
 import 'package:heimdall/model/student_presence.dart';
 import 'package:heimdall/model/user.dart';
 import "package:http/http.dart" as http;
+import 'package:onesignal/onesignal.dart';
 
 import 'model/class_group.dart';
 
@@ -176,6 +177,19 @@ class HeimdallApi {
     return _sendRequest(new http.Request("DELETE", getApiUri(endpoint)));
   }
 
+  _registerOneSignal(String onesignalAppId, User user) async {
+    OneSignal.shared.init(onesignalAppId, iOSSettings: {
+      OSiOSSettings.autoPrompt: false,
+      OSiOSSettings.inAppLaunchUrl: true
+    });
+    OneSignal.shared.setInFocusDisplayType(OSNotificationDisplayType.notification);
+
+    OSPermissionSubscriptionState state = await OneSignal.shared.getPermissionSubscriptionState();
+    OneSignal.shared.setEmail(email: user.email);
+
+    await post('device_subscribe', { 'id': state.subscriptionStatus.userId});
+  }
+
   Future<User> signIn(String apiUrl, String username, String password) async {
     if (apiUrl.isEmpty || username.isEmpty || password.isEmpty) {
       throw new AuthException(AuthExceptionType.bad_credentials);
@@ -198,6 +212,8 @@ class HeimdallApi {
       Map<String, dynamic> data = json.decode(response.body);
       final User user = User.fromJson(data['user']);
       this.userToken = UserToken.fromJson(data);
+
+      _registerOneSignal(data['onesignal_app_id'], user);
 
       // Save the url & token on the phone to be able to reconnect the user later
       final storage = new FlutterSecureStorage();
