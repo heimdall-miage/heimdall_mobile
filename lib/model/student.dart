@@ -9,13 +9,12 @@ class Student extends User {
   String get type => 'student';
 
   Student(
-      {int id, String username, String firstname, String lastname, String email, DateTime lastLogin, this.photo, this.classGroup, this.presences})
+      {int id, String username, String firstname, String lastname, DateTime lastLogin, this.photo, this.classGroup, this.presences})
       : super(id: id,
                   username: username,
                   firstname: firstname,
                   lastname: lastname,
-                  lastLogin: lastLogin,
-                  email: email);
+                  lastLogin: lastLogin);
 
   factory Student.fromApi(dynamic data) {
     if (data is int) {
@@ -30,7 +29,6 @@ class Student extends User {
   factory Student.fromJson(Map<String, dynamic> json) => new Student(
     id: json["id"],
     username: json["username"],
-    email: json["email"] == null ? null : json["email"],
     firstname: json["firstname"],
     lastname: json["lastname"],
     lastLogin: json["last_login"] == null ? null : DateTime.parse(json["last_login"]),

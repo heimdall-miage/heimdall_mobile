@@ -8,13 +8,12 @@ class Teacher extends User {
   get type => 'teacher';
 
   Teacher(
-      {int id, String username, String firstname, String lastname, String email, DateTime lastLogin, this.classGroups, this.rollCalls})
+      {int id, String username, String firstname, String lastname, DateTime lastLogin, this.classGroups, this.rollCalls})
       : super(id: id,
                   username: username,
                   firstname: firstname,
                   lastname: lastname,
-                  lastLogin: lastLogin,
-                  email: email);
+                  lastLogin: lastLogin);
 
   factory Teacher.fromApi(dynamic data) {
     if (data is int) {
@@ -29,7 +28,6 @@ class Teacher extends User {
   factory Teacher.fromJson(Map<String, dynamic> json) => new Teacher(
     id: json["id"],
     username: json["username"],
-    email: json["email"] == null ? null : json["email"],
     firstname: json["firstname"],
     lastname: json["lastname"],
     lastLogin: json["last_login"] == null ? null : DateTime.parse(json["last_login"]),

@@ -6,7 +6,6 @@ abstract class User {
   static final String TEACHER = 'Teacher';
   final int id;
   final String username;
-  String email;
   String firstname;
   String lastname;
   DateTime lastLogin;
@@ -14,7 +13,7 @@ abstract class User {
   String get fullName => firstname + ' ' + lastname;
   String get fullNameReversed => lastname + ' ' + firstname;
 
-  User({this.id, this.username, this.firstname, this.lastname, this.lastLogin, this.email});
+  User({this.id, this.username, this.firstname, this.lastname, this.lastLogin});
 
   factory User.fromJson(Map<String, dynamic> json) {
     if (json['type'] == STUDENT) {

@@ -185,7 +185,6 @@ class HeimdallApi {
     OneSignal.shared.setInFocusDisplayType(OSNotificationDisplayType.notification);
 
     OSPermissionSubscriptionState state = await OneSignal.shared.getPermissionSubscriptionState();
-    OneSignal.shared.setEmail(email: user.email);
 
     await post('device_subscribe', { 'id': state.subscriptionStatus.userId});
   }
