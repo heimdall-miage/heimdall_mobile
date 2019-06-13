@@ -190,7 +190,9 @@ class HeimdallApi {
 
       print('ONESIGNAL USER ID : ' + state.subscriptionStatus.userId);
 
-      await post('device_subscribe', { 'id': state.subscriptionStatus.userId});
+      dynamic result = await post('device_subscribe', { 'id': state.subscriptionStatus.userId});
+      print('ONESIGNAL SUBSCRIBE API RESULT : ');
+      print(result);
     } catch (e) {
       print("FAIL ONESIGNAL : " + e.toString());
     }
