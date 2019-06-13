@@ -1,7 +1,6 @@
 import 'dart:convert';
 import 'dart:io';
 
-import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:heimdall/model/student_presence.dart';
 import 'package:heimdall/ui/components/named_card.dart';
@@ -118,7 +117,7 @@ class _JustifyState extends Logged<Justify> {
     }
     if (justificativeFile == null && _presence.excuseProof != null) {
       return Image(
-          image: CachedNetworkImageProvider(_presence.excuseProof, headers: api.authHeader));
+          image: NetworkImage(_presence.excuseProof, headers: api.authHeader));
     } else {
       print(justificativeFile.path);
       return Image(image: AssetImage(justificativeFile.path));
