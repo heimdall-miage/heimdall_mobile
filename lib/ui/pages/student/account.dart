@@ -1,7 +1,7 @@
 import 'dart:convert';
 import 'dart:io';
+import 'dart:math';
 
-import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:heimdall/model.dart';
 import 'package:heimdall/model/student.dart';
@@ -44,7 +44,8 @@ class _AccountState extends Logged<Account> with WidgetsBindingObserver {
       });
       if (url != null) {
         setState(() {
-          student.photo = url;
+          // TODO : Cheat, to do better (work only once)
+          student.photo = url + "?v=" + (Random()).nextInt.toString();
         });
       }
     }
@@ -94,7 +95,7 @@ class _AccountState extends Logged<Account> with WidgetsBindingObserver {
               flexibleSpace: FlexibleSpaceBar(
                 background: student.photo != null ? Image(
                   fit: BoxFit.cover,
-                  image: CachedNetworkImageProvider(student.photo, headers: api.authHeader),
+                  image: NetworkImage(student.photo, headers: api.authHeader),
                 ) : null,
               ),
             ),

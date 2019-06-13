@@ -178,18 +178,22 @@ class HeimdallApi {
   }
 
   _registerOneSignal(String onesignalAppId, User user) async {
-    print('REGISTER TO ONESIGNAL : ' + onesignalAppId);
-    OneSignal.shared.init(onesignalAppId, iOSSettings: {
-      OSiOSSettings.autoPrompt: false,
-      OSiOSSettings.inAppLaunchUrl: true
-    });
-    OneSignal.shared.setInFocusDisplayType(OSNotificationDisplayType.notification);
+    try {
+      print('REGISTER TO ONESIGNAL : ' + onesignalAppId);
+      OneSignal.shared.init(onesignalAppId, iOSSettings: {
+        OSiOSSettings.autoPrompt: false,
+        OSiOSSettings.inAppLaunchUrl: true
+      });
+      OneSignal.shared.setInFocusDisplayType(OSNotificationDisplayType.notification);
 
-    OSPermissionSubscriptionState state = await OneSignal.shared.getPermissionSubscriptionState();
+      OSPermissionSubscriptionState state = await OneSignal.shared.getPermissionSubscriptionState();
 
-    print('ONESIGNAL USER ID : ' + state.subscriptionStatus.userId);
+      print('ONESIGNAL USER ID : ' + state.subscriptionStatus.userId);
 
-    await post('device_subscribe', { 'id': state.subscriptionStatus.userId});
+      await post('device_subscribe', { 'id': state.subscriptionStatus.userId});
+    } catch (e) {
+      print("FAIL ONESIGNAL : " + e.toString());
+    }
   }
 
   Future<User> signIn(String apiUrl, String username, String password) async {
