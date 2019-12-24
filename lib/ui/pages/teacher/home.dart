@@ -73,7 +73,8 @@ class _HomeState extends Logged<Home> {
             title: Text(_rollCalls[index].classGroup.name),
             subtitle: Text("${DateFormat('EEEE dd MMM yyy').format(_rollCalls[index].dateStart)} de ${_rollCalls[index].startAt.format(context)} à ${_rollCalls[index].endAt.format(context)} (${_rollCalls[index].diff.inHours}h)"),
             trailing: _rollCalls[index].isPassed ? Chip(label: Text('Terminé'), backgroundColor: Color.fromRGBO(0, 150, 0, 0.7)) : Chip(label: Text('En cours'), backgroundColor: Color.fromRGBO(255, 150, 0, 0.7)),
-            onTap: _rollCalls[index].isPassed ? null : () => _showRollcallForm(_rollCalls[index]),
+            //onTap: _rollCalls[index].isPassed ? null : () => _showRollcallForm(_rollCalls[index]),
+            onTap: () => _showRollcallForm(_rollCalls[index]),
           );
         }
     );

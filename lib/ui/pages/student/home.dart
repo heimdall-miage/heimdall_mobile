@@ -13,13 +13,15 @@ class Home extends StatefulWidget {
 
 class _HomeState extends Logged<Home> {
 
-  List<StudentPresence> _studentPresences = [];
+  List<StudentPresence> _studentPresences = List<StudentPresence>();
   bool includeBaseContainer = false;
   RefreshController _refreshController;
 
   void initState() {
     super.initState();
     _refreshController = RefreshController(initialRefresh:true);
+    _getPresence();
+    //
   }
 
   void _getPresence() async {
@@ -32,6 +34,7 @@ class _HomeState extends Logged<Home> {
       _studentPresences = studentPresences;
       loading = false;
     });
+
   }
 
   Widget _getPresenceValidationStatus(StudentPresence studentPresence) {
@@ -57,7 +60,7 @@ class _HomeState extends Logged<Home> {
     return Chip(
       label: Text(label),
       backgroundColor: color,
-      );
+    );
   }
 
   _showPresence(int index) async {
@@ -73,9 +76,57 @@ class _HomeState extends Logged<Home> {
     }
   }
 
+  ListTile _buildItemsForListView(BuildContext context, int index) {
+    return ListTile(
+      title: Text((!_studentPresences[index].present ? "Absence" : "Retard")),
+      subtitle: !_studentPresences[index].present ? Text("${DateFormat('EEEE dd MMM yyy').format(_studentPresences[index].rollCall.dateStart)} de ${_studentPresences[index].rollCall.startAt.format(context)} à ${_studentPresences[index].rollCall.endAt.format(context)} (${_studentPresences[index].rollCall.diff.inHours}h)")
+          : Text("${_studentPresences[index].lateDuration.inMinutes}m le ${DateFormat('EEEE dd MMM yyy').format(_studentPresences[index].rollCall.dateStart)}"),
+      trailing: _getPresenceValidationStatus(_studentPresences[index]),
+      onTap: _studentPresences[index].excuseProof == null || _studentPresences[index].excuseValidated == false
+          ? () => _showPresence(index)
+          : null,
+    );
+  }
+
+  void _onRefresh() async{
+    // monitor network fetch
+    await Future.delayed(Duration(milliseconds: 1000));
+    // if failed,use refreshFailed()
+    _refreshController.refreshCompleted();
+  }
+
+  void _onLoading() async{
+    // monitor network fetch
+    await Future.delayed(Duration(milliseconds: 1000));
+    // if failed,use loadFailed(),if no data return,use LoadNodata()
+    //items.add((items.length+1).toString());
+    if(mounted)
+      setState(() {
+
+      });
+    _refreshController.loadComplete();
+  }
+
   @override
   Widget getBody() {
-    return SmartRefresher(
+    return Scaffold(
+      body: SmartRefresher(
+        enablePullDown: true,
+        enablePullUp: true,
+        controller: _refreshController,
+        onRefresh: _onRefresh,
+        onLoading: _onLoading,
+        child: ListView.builder(
+            itemCount: _studentPresences.length,
+            itemBuilder: _buildItemsForListView
+        ),
+      ),
+    );
+    /*return ListView.builder(
+        itemCount: _studentPresences.length,
+        itemBuilder: _buildItemsForListView
+    );*/
+    /*return SmartRefresher(
       enablePullDown: true,
       enablePullUp: true,
       onRefresh: () => _getPresence(),
@@ -94,7 +145,7 @@ class _HomeState extends Logged<Home> {
             );
         }
         ),
-    );
+    );*/
   }
 
 
