@@ -4,6 +4,7 @@ import 'package:heimdall/model/rollcall.dart';
 import 'package:heimdall/ui/pages/logged.dart';
 import 'package:intl/date_symbol_data_local.dart';
 import 'package:intl/intl.dart';
+import 'package:pull_to_refresh/pull_to_refresh.dart';
 
 class Home extends StatefulWidget {
   @override
@@ -13,24 +14,27 @@ class Home extends StatefulWidget {
 class _HomeState extends Logged<Home> {
   List<RollCall> _rollCalls = [];
   bool includeBaseContainer = false;
+  RefreshController _refreshController = RefreshController(initialRefresh: false);
 
   @override
   void initState() {
-    setState(() {
+    /*setState(() {
       loading = true;
-    });
+    });*/
     super.initState();
     _getRollCalls();
   }
 
-
   void _getRollCalls() async {
     await initializeDateFormatting('fr_FR', null);
-    List<RollCall> rollCalls = await api.getRollCalls(20);
-      setState(() {
+
+    List<RollCall> rollCalls = await api.getRollCalls();
+    if(mounted)
+    setState(() {
         _rollCalls = rollCalls;
         loading = false;
       });
+    _refreshController.refreshCompleted();
   }
 
   void _showRollcallForm([RollCall rollcall]) async {
@@ -66,6 +70,28 @@ class _HomeState extends Logged<Home> {
 
   @override
   Widget getBody() {
+    return Scaffold(
+      body: SmartRefresher(
+        enablePullDown: true,
+        enablePullUp: true,
+        onRefresh: _getRollCalls,
+        controller: _refreshController,
+        child: ListView.builder(
+            itemCount: _rollCalls.length,
+            itemBuilder: (BuildContext context, int index) {
+              return ListTile(
+                title: Text(_rollCalls[index].classGroup.name),
+                subtitle: Text("${DateFormat('EEEE dd MMM yyy').format(_rollCalls[index].dateStart)} de ${_rollCalls[index].startAt.format(context)} à ${_rollCalls[index].endAt.format(context)} (${_rollCalls[index].diff.inHours}h)"),
+                trailing: _rollCalls[index].isPassed ? Chip(label: Text('Terminé'), backgroundColor: Color.fromRGBO(0, 150, 0, 0.7)) : Chip(label: Text('En cours'), backgroundColor: Color.fromRGBO(255, 150, 0, 0.7)),
+                //onTap: _rollCalls[index].isPassed ? null : () => _showRollcallForm(_rollCalls[index]),
+                onTap: () => _showRollcallForm(_rollCalls[index]),
+              );
+            }
+        ),
+
+      ),
+    );
+  /*Widget getBody() {
     return ListView.builder(
         itemCount: _rollCalls.length,
         itemBuilder: (BuildContext context, int index) {
@@ -77,7 +103,7 @@ class _HomeState extends Logged<Home> {
             onTap: () => _showRollcallForm(_rollCalls[index]),
           );
         }
-    );
+    );*/
   }
 
 }

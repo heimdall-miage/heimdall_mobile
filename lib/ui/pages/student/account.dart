@@ -19,6 +19,7 @@ class Account extends StatefulWidget {
 
 class _AccountState extends Logged<Account> with WidgetsBindingObserver {
   final _formKey = GlobalKey<FormState>();
+  final _formKeyInfos = GlobalKey<FormState>();
   final _newPasswordController = TextEditingController();
   final _oldPasswordController = TextEditingController();
   final Map<String, dynamic> _data = Map<String, dynamic>();
@@ -136,6 +137,67 @@ class _AccountState extends Logged<Account> with WidgetsBindingObserver {
                                   _focusNodes['oldPassword'].unfocus();
                                 },
                                 onSaved: (String value) => _data['oldPassword'] = value,
+                              ),
+                              ButtonTheme.bar(
+                                child: ButtonBar(
+                                  children: <Widget>[
+                                    LoadingButton(
+                                      text: 'ENREGISTRER',
+                                      buttonType: ButtonType.FlatButton,
+                                      action: _updatePassword,
+                                      errorAction: showErrorDialog,
+                                      successText: "Mot de passe mis à jour !",
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ]),
+                          ))
+                    ]
+                ),
+                NamedCard(
+                    title: 'Informations',
+                    children: <Widget>[
+                      Form(
+                          key: _formKeyInfos,
+                          child: Padding(
+                            padding: EdgeInsets.only(left: 10, right: 10),
+                            child: Column(children: <Widget>[
+                              TextFormField(
+                                key: widget.key,
+                                decoration: InputDecoration(
+                                    contentPadding: EdgeInsets.only(right: 10, top: 12, bottom: 12),
+                                    labelText: "Email secondaire",
+                                    errorMaxLines: 6,
+                                    suffix: InkWell(
+                                      borderRadius: BorderRadius.circular(10),
+                                      child: Icon(
+                                        Icons.person,
+                                        size: 18,
+                                        color:Colors.grey,
+                                      ),
+                                    ),
+                                    icon: const Icon(Icons.lock)
+                                ),
+                                autocorrect: false,
+                              ),
+                              TextFormField(
+                                key: widget.key,
+                                decoration: InputDecoration(
+                                    contentPadding: EdgeInsets.only(right: 10, top: 12, bottom: 12),
+                                    labelText: "Téléphone",
+                                    errorMaxLines: 6,
+                                    suffix: InkWell(
+                                      borderRadius: BorderRadius.circular(10),
+                                      child: Icon(
+                                        Icons.person,
+                                        size: 18,
+                                        color:Colors.grey,
+                                      ),
+                                    ),
+                                    icon: const Icon(Icons.lock)
+                                ),
+                                autocorrect: false,
                               ),
                               ButtonTheme.bar(
                                 child: ButtonBar(

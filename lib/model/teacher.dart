@@ -8,11 +8,12 @@ class Teacher extends User {
   get type => 'teacher';
 
   Teacher(
-      {int id, String username, String firstname, String lastname, DateTime lastLogin, this.classGroups, this.rollCalls})
+      {int id, String username, String firstname, String lastname, String email, DateTime lastLogin, this.classGroups, this.rollCalls})
       : super(id: id,
                   username: username,
                   firstname: firstname,
                   lastname: lastname,
+                  email: email,
                   lastLogin: lastLogin);
 
   factory Teacher.fromApi(dynamic data) {
@@ -30,6 +31,7 @@ class Teacher extends User {
     username: json["username"],
     firstname: json["firstname"],
     lastname: json["lastname"],
+    email: json["email"],
     lastLogin: json["last_login"] == null ? null : DateTime.parse(json["last_login"]),
     classGroups: json['class_groups'] == null ? null : new List<ClassGroup>.from(json["class_groups"].map((x) => ClassGroup.fromApi(x))),
     rollCalls: json['roll_calls'] == null ? null : new List<RollCall>.from(json["roll_calls"].map((x) => RollCall.fromApi(x))),
@@ -41,6 +43,7 @@ class Teacher extends User {
     "username": username,
     "firstname": firstname,
     "lastname": lastname,
+    "email": email,
     "last_login": lastLogin == null ? null : lastLogin.toIso8601String(),
     "class_groups": classGroups == null ? null : new List<dynamic>.from(classGroups.map((x) => x.toJson())),
     "roll_calls": rollCalls == null ? null : new List<dynamic>.from(rollCalls.map((x) => x.toJson())),

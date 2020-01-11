@@ -159,14 +159,14 @@ class _JustifyState extends Logged<Justify> {
                       child: Row(
                         children: <Widget>[
                           Icon(Icons.add_photo_alternate),
-                          Text('Importer une photo')
+                          Text('Importer une \n photo', textAlign: TextAlign.center,)
                         ],
                       ),
                       onPressed: _selectPicture,
                     ),
                     FlatButton(
                       child: Row(
-                        children: <Widget>[Icon(Icons.add_a_photo), Text('Prendre une photo')],
+                        children: <Widget>[Icon(Icons.add_a_photo), Text('Prendre une \n photo', textAlign: TextAlign.center,)],
                       ),
                       onPressed: _takePicture,
                     ),

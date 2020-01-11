@@ -359,7 +359,7 @@ class _RollCallFormState extends Logged<RollCallForm> {
                                     : Image.network(
                                     studentPresence.student.photo,
                                     headers: api.authHeader,
-                                    height: 80),
+                                    height: 100),
                                 trailing: IconButton(
                                   icon: Icon(Icons.access_time),
                                   onPressed: () =>

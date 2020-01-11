@@ -5,7 +5,7 @@ import 'package:heimdall/model.dart';
 import 'package:heimdall/model/student.dart';
 import 'package:heimdall/model/teacher.dart';
 import 'package:heimdall/model/user.dart';
-import 'package:heimdall/reset_password.dart';
+import 'package:heimdall/ui/pages/reset_password.dart';
 import 'package:heimdall/ui/pages/login.dart';
 import 'package:heimdall/ui/pages/student/account.dart' as student_account;
 import 'package:heimdall/ui/pages/student/home.dart' as student_home;
@@ -55,8 +55,8 @@ class App extends StatelessWidget {
                   switch (snapshot.connectionState) {
                     case ConnectionState.none:
                     case ConnectionState.waiting:
-                      return Container(child: Center(child: CircularProgressIndicator()), color: Colors.white);
                     default:
+
                       if (snapshot.hasError) {
                         return Text('Error: ${snapshot.error}'); // TODO : Gestion erreur
                       } else {
