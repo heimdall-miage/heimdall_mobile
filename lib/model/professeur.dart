@@ -2,12 +2,12 @@ import 'package:heimdall/model/class_group.dart';
 import 'package:heimdall/model/rollcall.dart';
 import 'package:heimdall/model/user.dart';
 
-class Teacher extends User {
+class Professeur extends User {
   List<ClassGroup> classGroups;
   List<RollCall> rollCalls;
-  get type => 'teacher';
+  get type => 'professeur';
 
-  Teacher(
+  Professeur(
       {int id, String username, String firstname, String lastname, String email, DateTime lastLogin, this.classGroups, this.rollCalls})
       : super(id: id,
                   username: username,
@@ -16,17 +16,17 @@ class Teacher extends User {
                   email: email,
                   lastLogin: lastLogin);
 
-  factory Teacher.fromApi(dynamic data) {
+  factory Professeur.fromApi(dynamic data) {
     if (data is int) {
-      return new Teacher(id: data);
+      return new Professeur(id: data);
     }
     if (data is Map<String, dynamic>) {
-      return Teacher.fromJson(data);
+      return Professeur.fromJson(data);
     }
     throw new Exception('Invalid format');
   }
 
-  factory Teacher.fromJson(Map<String, dynamic> json) => new Teacher(
+  factory Professeur.fromJson(Map<String, dynamic> json) => new Professeur(
     id: json["id"],
     username: json["username"],
     firstname: json["firstname"],

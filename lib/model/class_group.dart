@@ -1,12 +1,12 @@
 import 'package:heimdall/model/rollcall.dart';
-import 'package:heimdall/model/student.dart';
-import 'package:heimdall/model/teacher.dart';
+import 'package:heimdall/model/etudiant.dart';
+import 'package:heimdall/model/professeur.dart';
 
 class ClassGroup {
   int id;
   String name;
-  List<Student> students;
-  List<Teacher> teachers;
+  List<Etudiant> students;
+  List<Professeur> teachers;
   List<RollCall> rollCalls;
 
   ClassGroup({
@@ -30,8 +30,8 @@ class ClassGroup {
   factory ClassGroup.fromJson(Map<String, dynamic> json) => new ClassGroup(
     id: json["id"],
     name: json["name"],
-    students: json["students"] == null ? null : new List<Student>.from(json["students"].map((x) => Student.fromApi(x))),
-    teachers: json["teachers"] == null ? null : new List<Teacher>.from(json["teachers"].map((x) => Teacher.fromApi(x))),
+    students: json["students"] == null ? null : new List<Etudiant>.from(json["students"].map((x) => Etudiant.fromApi(x))),
+    teachers: json["teachers"] == null ? null : new List<Professeur>.from(json["teachers"].map((x) => Professeur.fromApi(x))),
     rollCalls: json["roll_calls"] == null ? null : new List<RollCall>.from(json["roll_calls"].map((x) => RollCall.fromApi(x))),
   );
 

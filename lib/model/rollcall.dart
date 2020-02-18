@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:heimdall/model/class_group.dart';
 import 'package:heimdall/model/student_presence.dart';
-import 'package:heimdall/model/teacher.dart';
+import 'package:heimdall/model/professeur.dart';
 
 class RollCall {
   static const STATUS_DRAFT = 'draft';
@@ -10,7 +10,7 @@ class RollCall {
 
   int id;
   ClassGroup classGroup;
-  Teacher teacher;
+  Professeur teacher;
   List<StudentPresence> studentPresences;
   DateTime dateStart;
   DateTime dateEnd;
@@ -61,7 +61,7 @@ class RollCall {
   factory RollCall.fromJson(Map<String, dynamic> json) => new RollCall(
     id: json["id"],
     classGroup: json["class_group"] == null ? null : ClassGroup.fromApi(json["class_group"]),
-    teacher: json["teacher"] == null ? null : Teacher.fromApi(json["teacher"]),
+    teacher: json["teacher"] == null ? null : Professeur.fromApi(json["teacher"]),
     studentPresences: json["student_presences"] == null ? null :  new List<StudentPresence>.from(json["student_presences"].map((x) => StudentPresence.fromApi(x))),
     dateStart: DateTime.parse(json["date_start"]),
     dateEnd: DateTime.parse(json["date_end"]),

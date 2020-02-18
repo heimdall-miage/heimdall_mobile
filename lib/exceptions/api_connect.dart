@@ -4,7 +4,6 @@ class ApiConnectException implements Exception {
   String errorMessage;
   ApiConnectException({this.type, this.responseStatusCode, this.errorMessage});
 
-  // TODO : Translation auto?
   String get message {
     switch (type) {
       case ApiConnectExceptionType.http:
@@ -17,7 +16,7 @@ class ApiConnectException implements Exception {
         return "La connexion a pris trop de temps";
         break;
       default:
-        return "Erreur HTTP: " + errorMessage; // TODO : beau message
+        return "Erreur HTTP: " + errorMessage;
         break;
     }
   }

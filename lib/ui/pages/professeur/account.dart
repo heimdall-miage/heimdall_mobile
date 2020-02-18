@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:heimdall/model.dart';
-import 'package:heimdall/model/teacher.dart';
+import 'package:heimdall/model/professeur.dart';
 import 'package:heimdall/ui/components/loading_button.dart';
 import 'package:heimdall/ui/components/named_card.dart';
 import 'package:heimdall/ui/components/password_field.dart';
@@ -20,7 +20,7 @@ class _AccountState extends Logged<Account> with WidgetsBindingObserver {
     'newPassword': FocusNode(),
     'oldPassword': FocusNode(),
   };
-  Teacher teacher;
+  Professeur teacher;
 
   @override
   initState() {

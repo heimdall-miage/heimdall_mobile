@@ -1,4 +1,3 @@
-
 import 'package:flutter/material.dart';
 import 'package:heimdall/model/student_presence.dart';
 import 'package:heimdall/ui/pages/logged.dart';

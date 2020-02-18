@@ -111,7 +111,7 @@ class _JustifyState extends Logged<Justify> {
     return items;
   }
 
-  Widget _displayPicture() {
+  /*Widget _displayPicture() {
     if (justificativeFile == null && _presence.excuseProof == null) {
       return Center(child: Text('En attente du justificatif'));
     }
@@ -122,7 +122,7 @@ class _JustifyState extends Logged<Justify> {
       print(justificativeFile.path);
       return Image(image: AssetImage(justificativeFile.path));
     }
-  }
+  }*/
 
   @override
   Widget getBody() {
@@ -176,9 +176,9 @@ class _JustifyState extends Logged<Justify> {
                 ),
             ],
             ),
-          Expanded(
+          /*Expanded(
             child: _displayPicture(),
-            ),
+            ),*/
           SizedBox(
               width: double.infinity,
               child: RaisedButton(

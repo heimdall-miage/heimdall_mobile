@@ -1,5 +1,4 @@
 class Validator {
-  // TODO : Translations
   static String validatePhoneNumber(String phone) {
     RegExp regExp = RegExp(r'^(?:(?:\+|00)33|0)\s*[1-9](?:[\s.-]*\d{2}){4}$');
     if (phone.isNotEmpty && regExp.hasMatch(phone)) {

@@ -4,7 +4,7 @@ import 'dart:math';
 
 import 'package:flutter/material.dart';
 import 'package:heimdall/model.dart';
-import 'package:heimdall/model/student.dart';
+import 'package:heimdall/model/etudiant.dart';
 import 'package:heimdall/ui/components/loading_button.dart';
 import 'package:heimdall/ui/components/named_card.dart';
 import 'package:heimdall/ui/components/password_field.dart';
@@ -27,7 +27,7 @@ class _AccountState extends Logged<Account> with WidgetsBindingObserver {
     'newPassword': FocusNode(),
     'oldPassword': FocusNode(),
   };
-  Student student;
+  Etudiant student;
 
   @override
   initState() {
@@ -36,7 +36,7 @@ class _AccountState extends Logged<Account> with WidgetsBindingObserver {
   }
 
 
-  Future<void> _changeAvatar() async {
+  /*Future<void> _changeAvatar() async {
     File avatarFile = await ImagePicker.pickImage(source: ImageSource.gallery, maxHeight: 200, maxWidth: 200);
     if (avatarFile != null) {
       String url = await api.post('student/photo', {
@@ -50,7 +50,7 @@ class _AccountState extends Logged<Account> with WidgetsBindingObserver {
         });
       }
     }
-  }
+  }*/
 
   Future<void> _updatePassword() async {
     FocusScope.of(context).requestFocus(new FocusNode()); // reset focus
@@ -87,18 +87,18 @@ class _AccountState extends Logged<Account> with WidgetsBindingObserver {
               floating: false,
               snap: false,
               actions: <Widget>[
-                FlatButton(
+                /*FlatButton(
                   child: Text('Modifier la photo'),
                   onPressed: _changeAvatar,
-                ),
+                ),*/
               ],
               expandedHeight: 250.0,
-              flexibleSpace: FlexibleSpaceBar(
+              /*flexibleSpace: FlexibleSpaceBar(
                 background: student.photo != null ? Image(
                   fit: BoxFit.cover,
                   image: NetworkImage(student.photo, headers: api.authHeader),
                 ) : null,
-              ),
+              ),*/
             ),
             SliverList(
               delegate: SliverChildListDelegate([

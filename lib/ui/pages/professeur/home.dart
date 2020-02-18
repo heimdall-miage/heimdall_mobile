@@ -71,7 +71,8 @@ class _HomeState extends Logged<Home> {
   @override
   Widget getBody() {
     return Scaffold(
-      body: SmartRefresher(
+      body: Text('Prof')
+      /*body: SmartRefresher(
         enablePullDown: true,
         enablePullUp: true,
         onRefresh: _getRollCalls,
@@ -89,7 +90,7 @@ class _HomeState extends Logged<Home> {
             }
         ),
 
-      ),
+      ),*/
     );
   /*Widget getBody() {
     return ListView.builder(

@@ -1,8 +1,7 @@
 class AuthException implements Exception {
   AuthExceptionType type;
   AuthException(this.type);
-
-  // TODO : Translation auto?
+  
   String get message {
     switch (type) {
       case AuthExceptionType.bad_credentials:

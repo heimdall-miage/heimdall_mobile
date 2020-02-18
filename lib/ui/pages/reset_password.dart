@@ -2,12 +2,8 @@ import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:heimdall/exceptions/api_connect.dart';
-import 'package:heimdall/exceptions/auth.dart';
 import 'package:heimdall/helper/validation.dart';
 import 'package:heimdall/model.dart';
-import 'package:heimdall/ui/components/password_field.dart';
-import "package:http/http.dart" as http;
 
 class ResetPassword extends StatefulWidget {
   @override
